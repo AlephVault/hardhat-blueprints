@@ -1,4 +1,4 @@
-let promptTypes = {
+global.__promptTypes = {
     "typeName": {
         prompt: {
             type: "plus:given-or-valid-input",
@@ -82,7 +82,7 @@ function preparePrompt(name, message, promptType, nonInteractive, given) {
     // First, the prompt type is either a textual/registered string
     // or a partial prompt object. Then, the other members are added.
     if (!promptType) throw new Error("Cannot prepare a prompt with empty type");
-    return {name, message, given, ...(promptTypes[promptType].prompt || promptType)};
+    return {name, message, given, ...(global.__promptTypes[promptType].prompt || promptType)};
 }
 
 /**
@@ -93,10 +93,10 @@ function preparePrompt(name, message, promptType, nonInteractive, given) {
  * @param description A description of how the type works.
  */
 function registerBlueprintArgumentType(promptType, promptTypeSpec, description) {
-    if (promptTypes[promptType] !== undefined) {
+    if (global.__promptTypes[promptType] !== undefined) {
         throw new Error(`A prompt type is already registered with this name: ${promptType}`);
     }
-    promptTypes[promptType] = {prompt: promptTypeSpec, description};
+    global.__promptTypes[promptType] = {prompt: promptTypeSpec, description};
 }
 
 /**
@@ -117,5 +117,5 @@ function preparePrompts(arguments, nonInteractive, givenValues) {
 }
 
 module.exports = {
-    preparePrompts, registerBlueprintArgumentType, promptTypes
+    preparePrompts, registerBlueprintArgumentType, promptTypes: global.__promptTypes
 }
