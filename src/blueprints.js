@@ -1,5 +1,5 @@
 // The list of blueprints. Each one has {defaultName, filePath, arguments}.
-const {preparePrompts} = require("./promptTypes");
+const {prepareArgumentPrompts} = require("./argumentTypes");
 const fs = require("fs");
 const path = require("path");
 global.__blueprints = {};
@@ -89,7 +89,7 @@ async function executeBlueprint(hre, key, nonInteractive, givenValues) {
             onInvalidGiven: (v) => console.error(`Invalid given ${scriptType} name: ${v}`),
             initial: blueprint.defaultName,
             name: "SCRIPT_NAME"
-        }, ...preparePrompts(blueprint.arguments, nonInteractive, givenValues)
+        }, ...prepareArgumentPrompts(blueprint.arguments, nonInteractive, givenValues)
     ];
     const answers = await new hre.enquirerPlus.Enquirer().prompt(prompts);
     const toFilePath = path.resolve(targetDirectory, answers.SCRIPT_NAME + "." + extension);

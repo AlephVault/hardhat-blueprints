@@ -1,5 +1,5 @@
 const {scope} = require("hardhat/config");
-const {registerBlueprintArgumentType, promptTypes} = require("./promptTypes");
+const {registerBlueprintArgumentType, argumentTypes} = require("./argumentTypes");
 const {registerBlueprint, executeBlueprint, blueprintsList, blueprints} = require("./blueprints");
 const path = require("path");
 
@@ -38,7 +38,7 @@ scope_
         blueprintsList.forEach(({name, message}) => {
             console.log(`- ${name}: ${message}\n  - Arguments:`)
             blueprints[name].arguments.forEach((argument) => {
-                console.log(`    - ${argument.name}: ${argument.description || 'No description'} (${(promptTypes[argument.promptType] || {}).description || "unknown"})`);
+                console.log(`    - ${argument.name}: ${argument.description || 'No description'} (${(argumentTypes[argument.argumentType] || {}).description || "unknown"})`);
             })
         });
     });
@@ -53,7 +53,7 @@ registerBlueprint(
             name: "SOLIDITY_VERSION",
             description: "The Solidity version for the new file",
             message: "Choose the solidity version for this file",
-            promptType: "solidity"
+            argumentType: "solidity"
         }
     ]
 );
@@ -65,7 +65,7 @@ registerBlueprint(
             name: "SOLIDITY_VERSION",
             description: "The Solidity version for the new file",
             message: "Choose the solidity version for this file",
-            promptType: "solidity"
+            argumentType: "solidity"
         }
     ]
 );
@@ -77,7 +77,7 @@ registerBlueprint(
             name: "SOLIDITY_VERSION",
             description: "The Solidity version for the new file",
             message: "Choose the solidity version for this file",
-            promptType: "solidity"
+            argumentType: "solidity"
         }
     ]
 );
@@ -90,13 +90,13 @@ registerBlueprint(
             name: "CONTRACT_NAME",
             description: "The type to use for the contract",
             message: "Choose one of your contract artifacts",
-            promptType: "contract"
+            argumentType: "contract"
         },
         {
             name: "CONTRACT_ADDRESS",
             description: "The address where the contract is deployed",
             message: "Tell the address where the contract is located at",
-            promptType: "address"
+            argumentType: "address"
         }
     ]
 );
@@ -109,7 +109,7 @@ registerBlueprint(
             name: "CONTRACT_NAME",
             description: "The type to use for the contract",
             message: "Choose one of your contract artifacts",
-            promptType: "contract"
+            argumentType: "contract"
         }
     ]
 );

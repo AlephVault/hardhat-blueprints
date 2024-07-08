@@ -1,4 +1,4 @@
-global.__promptTypes = {
+global.__argumentTypes = {
     "typeName": {
         prompt: {
             type: "plus:given-or-valid-input",
@@ -74,29 +74,29 @@ global.__promptTypes = {
  * @param given The initial given value (optional).
  * @param nonInteractive Flag to tell whether the interaction must
  * not become interactive (by raising an error) or can be.
- * @param promptType The prompt type. Either one of the registered
- * prompt types.
+ * @param argumentType The argument type. Either one of the registered
+ * argument types or a custom prompt.
  * @returns {*} The prompt entry.
  */
-function preparePrompt(name, message, promptType, nonInteractive, given) {
+function preparePrompt(name, message, argumentType, nonInteractive, given) {
     // First, the prompt type is either a textual/registered string
     // or a partial prompt object. Then, the other members are added.
-    if (!promptType) throw new Error("Cannot prepare a prompt with empty type");
-    return {name, message, given, ...(global.__promptTypes[promptType].prompt || promptType)};
+    if (!argumentType) throw new Error("Cannot prepare a prompt with empty type");
+    return {name, message, given, ...(global.__argumentTypes[argumentType].prompt || argumentType)};
 }
 
 /**
  * Registers a prompt type for the arguments.
- * @param promptType The name of the prompt type.
- * @param promptTypeSpec The object depicting a prompt (in the same
+ * @param argumentType The name of the prompt type.
+ * @param promptSpec The object depicting a prompt (in the same
  * format that would be provided for enquirer's prompt() method).
  * @param description A description of how the type works.
  */
-function registerBlueprintArgumentType(promptType, promptTypeSpec, description) {
-    if (global.__promptTypes[promptType] !== undefined) {
-        throw new Error(`A prompt type is already registered with this name: ${promptType}`);
+function registerBlueprintArgumentType(argumentType, promptSpec, description) {
+    if (global.__argumentTypes[argumentType] !== undefined) {
+        throw new Error(`A prompt type is already registered with this name: ${argumentType}`);
     }
-    global.__promptTypes[promptType] = {prompt: promptTypeSpec, description};
+    global.__argumentTypes[argumentType] = {prompt: promptSpec, description};
 }
 
 /**
@@ -109,13 +109,13 @@ function registerBlueprintArgumentType(promptType, promptTypeSpec, description) 
  * per argument name).
  * @returns {Array} The native prompts.
  */
-function preparePrompts(arguments, nonInteractive, givenValues) {
+function prepareArgumentPrompts(arguments, nonInteractive, givenValues) {
     givenValues = givenValues || {};
-    return arguments.map(({name, message, promptType}) => preparePrompt(
-        name, message, promptType, nonInteractive, givenValues[name]
+    return arguments.map(({name, message, argumentType}) => preparePrompt(
+        name, message, argumentType, nonInteractive, givenValues[name]
     ));
 }
 
 module.exports = {
-    preparePrompts, registerBlueprintArgumentType, promptTypes: global.__promptTypes
+    prepareArgumentPrompts, registerBlueprintArgumentType, argumentTypes: global.__argumentTypes
 }
