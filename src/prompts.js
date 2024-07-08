@@ -1,7 +1,4 @@
 let prompts = {
-    "pressAnyKey": {
-        type: "plus:press-any-key"
-    },
     "contractName": {
         type: "plus:given-or-valid-input",
         validate: /^[A-Z][A-Za-z0-9_]*$/,
