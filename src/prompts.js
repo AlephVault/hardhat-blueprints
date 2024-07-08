@@ -39,13 +39,16 @@ let prompts = {
  * @param name The internal name of the argument.
  * @param message The display message.
  * @param given The initial given value (optional).
+ * @param nonInteractive Flag to tell whether the interaction must
+ * not become interactive (by raising an error) or can be.
  * @param promptType The prompt type. Either one of the registered
  * prompt types.
  * @returns {*} The prompt entry.
  */
-function preparePrompt(name, message, given, promptType) {
+function preparePrompt(name, message, promptType, nonInteractive, given) {
     // First, the prompt type is either a textual/registered string
     // or a partial prompt object. Then, the other members are added.
+    if (!promptType) throw new Error("Cannot prepare a prompt with empty type");
     return {name, message, given, ...(prompts[promptType] || promptType)};
 }
 
@@ -62,6 +65,20 @@ function registerPromptType(promptType, promptTypeSpec) {
     prompts[promptType] = promptTypeSpec;
 }
 
+/**
+ * Prepares all the given arguments into enquirer's prompts.
+ * Each element must be {name, message, promptType[, given]}.
+ * @param arguments The list of argument entries.
+ * @param nonInteractive Flag to tell whether the interaction must
+ * not become interactive (by raising an error) or can be.
+ * @returns {Array} The native prompts.
+ */
+function preparePrompts(arguments, nonInteractive) {
+    return arguments.map(({name, message, promptType, given}) => preparePrompt(
+        name, message, promptType, nonInteractive, given
+    ));
+}
+
 module.exports = {
-    preparePrompt, registerPromptType
+    preparePrompts, registerPromptType
 }
