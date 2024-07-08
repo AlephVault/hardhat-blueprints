@@ -1,0 +1,28 @@
+{
+  "name": "hardhat-blueprints",
+  "version": "1.0.0",
+  "description": "A hardhat plugin offering the possibility to generate new contract files (.sol) out of an extensible list of contract blueprints",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Tests are not implemented for this package\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/AlephVault/hardhat-blueprints.git"
+  },
+  "keywords": [
+    "hardhat",
+    "blueprints",
+    "plugin"
+  ],
+  "author": "Luis Masuelli",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AlephVault/hardhat-blueprints/issues"
+  },
+  "homepage": "https://github.com/AlephVault/hardhat-blueprints#readme",
+  "peerDependencies": {
+    "hardhat": "^2.22.5",
+    "hardhat-enquirer-plus": "^1.0.1"
+  }
+}
