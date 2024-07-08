@@ -45,17 +45,35 @@ const __templates = path.resolve(__dirname, "..", "data", "templates");
 registerBlueprint(
     "contract", "MyContract", "An empty contract",
     path.resolve(__templates, "solidity", "Contract.sol.template"),
-    "solidity", []
+    "solidity", [
+        {
+            name: "SOLIDITY_VERSION",
+            message: "Choose the solidity version for this file",
+            promptType: "solidity"
+        }
+    ]
 );
 registerBlueprint(
     "interface", "MyInterface", "An empty interface",
     path.resolve(__templates, "solidity", "Interface.sol.template"),
-    "solidity", []
+    "solidity", [
+        {
+            name: "SOLIDITY_VERSION",
+            message: "Choose the solidity version for this file",
+            promptType: "solidity"
+        }
+    ]
 );
 registerBlueprint(
     "library", "MyLibrary", "An empty library",
     path.resolve(__templates, "solidity", "Library.sol.template"),
-    "solidity", []
+    "solidity", [
+        {
+            name: "SOLIDITY_VERSION",
+            message: "Choose the solidity version for this file",
+            promptType: "solidity"
+        }
+    ]
 );
 registerBlueprint(
     "existing-contract-deployment-module", "MyModule",
