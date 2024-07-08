@@ -92,8 +92,6 @@ async function executeBlueprint(hre, key, nonInteractive, givenValues) {
             name: "SCRIPT_NAME"
         }, ...preparePrompts(blueprint.arguments, nonInteractive, givenValues)
     ];
-    const enquirer = new hre.enquirerPlus.Enquirer();
-    enquirer.register("plus:hardhat:blueprints:given-or-solidity-version-select", GivenOrSolidityVersionSelect);
     const answers = await new hre.enquirerPlus.Enquirer().prompt(prompts);
     const toFilePath = path.resolve(targetDirectory, answers.SCRIPT_NAME + "." + extension);
     applyTemplate(blueprint.filePath, answers, toFilePath);
