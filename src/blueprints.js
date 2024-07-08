@@ -73,6 +73,7 @@ function applyTemplate(filePath, replacements, toFilePath) {
  * @param nonInteractive Flag to tell whether the interaction must
  * not become interactive (by raising an error) or can be.
  * @param givenValues A mapping of given values to use.
+ * @returns {string} The result filepath.
  */
 async function executeBlueprint(hre, key, nonInteractive, givenValues) {
     const blueprint = global.__blueprints[key];
@@ -94,6 +95,7 @@ async function executeBlueprint(hre, key, nonInteractive, givenValues) {
     const answers = await new hre.enquirerPlus.Enquirer().prompt(prompts);
     const toFilePath = path.resolve(targetDirectory, answers.SCRIPT_NAME + "." + extension);
     applyTemplate(blueprint.filePath, answers, toFilePath);
+    return toFilePath;
 }
 
 module.exports = {
