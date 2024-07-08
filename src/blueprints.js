@@ -13,7 +13,7 @@ const templateTypes = {
     "solidity": {
         description: "solidity script",
         extension: "sol",
-        target: "contracts"
+        target: "sources"
     },
     "ignition-module": {
         description: "ignition module",
