@@ -1,49 +1,67 @@
 let prompts = {
     "typeName": {
-        type: "plus:given-or-valid-input",
-        validate: /^[A-Z][A-Za-z0-9_]*$/,
-        makeInvalidInputMessage: (v) => `Invalid type name: ${v}`,
-        onInvalidGiven: (v) => console.error(`Invalid given type name: ${v}`),
+        prompt: {
+            type: "plus:given-or-valid-input",
+            validate: /^[A-Z][A-Za-z0-9_]*$/,
+            makeInvalidInputMessage: (v) => `Invalid type name: ${v}`,
+            onInvalidGiven: (v) => console.error(`Invalid given type name: ${v}`)
+        },
         description: "The PascalCase name of a type"
     },
     "identifier": {
-        type: "plus:given-or-valid-input",
-        validate: /^[a-z][A-Za-z0-9_]*$/,
-        makeInvalidInputMessage: (v) => `Invalid identifier: ${v}`,
-        onInvalidGiven: (v) => console.error(`Invalid given identifier: ${v}`),
+        prompt: {
+            type: "plus:given-or-valid-input",
+            validate: /^[a-z][A-Za-z0-9_]*$/,
+            makeInvalidInputMessage: (v) => `Invalid identifier: ${v}`,
+            onInvalidGiven: (v) => console.error(`Invalid given identifier: ${v}`)
+        },
         description: "A camelCase identifier"
     },
     "contract": {
-        type: "plus:hardhat:given-or-contract-select",
+        prompt: {
+            type: "plus:hardhat:given-or-contract-select"
+        },
         description: "The ID of an artifact"
     },
     "number": {
-        type: "plus:given-or-valid-number-input",
-        convert: "string",
+        prompt: {
+            type: "plus:given-or-valid-number-input",
+            convert: "string"
+        },
         description: "A positive number"
     },
     "integer": {
-        type: "plus:given-or-valid-number-input",
-        integerOnly: true, allowHex: true,
-        convert: "string",
+        prompt: {
+            type: "plus:given-or-valid-number-input",
+            integerOnly: true, allowHex: true,
+            convert: "string"
+        },
         description: "A positive integer"
     },
     "boolean": {
-        type: "plus:given-or-boolean-select",
+        prompt: {
+            type: "plus:given-or-boolean-select"
+        },
         description: "(true or false)"
     },
     "address": {
-        type: "plus:hardhat:given-or-valid-address-input",
-        allowAccountIndex: false,
+        prompt: {
+            type: "plus:hardhat:given-or-valid-address-input",
+            allowAccountIndex: false
+        },
         description: "A checksum address"
     },
     "smart-address": {
-        type: "plus:hardhat:given-or-valid-address-input",
-        allowAccountIndex: true,
+        prompt: {
+            type: "plus:hardhat:given-or-valid-address-input",
+            allowAccountIndex: true
+        },
         description: "A checksum address or account index"
     },
     "solidity": {
-        type: "plus:hardhat:given-or-solidity-version-select",
+        prompt: {
+            type: "plus:hardhat:given-or-solidity-version-select"
+        },
         description: "An X.Y.Z Solidity version in the project"
     }
 }
@@ -64,7 +82,7 @@ function preparePrompt(name, message, promptType, nonInteractive, given) {
     // First, the prompt type is either a textual/registered string
     // or a partial prompt object. Then, the other members are added.
     if (!promptType) throw new Error("Cannot prepare a prompt with empty type");
-    return {name, message, given, ...(prompts[promptType] || promptType)};
+    return {name, message, given, ...(prompts[promptType].prompt || promptType)};
 }
 
 /**
@@ -72,12 +90,13 @@ function preparePrompt(name, message, promptType, nonInteractive, given) {
  * @param promptType The name of the prompt type.
  * @param promptTypeSpec The object depicting a prompt (in the same
  * format that would be provided for enquirer's prompt() method).
+ * @param description A description of how the type works.
  */
-function registerBlueprintArgumentType(promptType, promptTypeSpec) {
+function registerBlueprintArgumentType(promptType, promptTypeSpec, description) {
     if (prompts[promptType] !== undefined) {
         throw new Error(`A prompt type is already registered with this name: ${promptType}`);
     }
-    prompts[promptType] = promptTypeSpec;
+    prompts[promptType] = {prompt: promptTypeSpec, description};
 }
 
 /**
