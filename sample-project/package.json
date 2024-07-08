@@ -1,0 +1,21 @@
+{
+  "name": "sample-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "hardhat": "^2.22.5",
+    "hardhat-blueprints": "file:.."
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0"
+  },
+  "peerDependencies": {
+    "hardhat-enquirer-plus": "^1.0.5"
+  }
+}

@@ -78,7 +78,7 @@ registerBlueprint(
 registerBlueprint(
     "existing-contract-deployment-module", "MyModule",
     "An ignition module for an existing contract (by artifact ID and contract address)",
-    path.resolve(__templates, "solidity", "Library.sol.template"),
+    path.resolve(__templates, "ignition-modules", "existing-contract.js.template"),
     "ignition-module", [
         {
             name: "CONTRACT_NAME",
@@ -95,7 +95,7 @@ registerBlueprint(
 registerBlueprint(
     "new-contract-deployment-module", "MyModule",
     "An ignition module for a new contract (by artifact ID)",
-    path.resolve(__templates, "solidity", "Library.sol.template"),
+    path.resolve(__templates, "ignition-modules", "new-contract.js.template"),
     "ignition-module", [
         {
             name: "CONTRACT_NAME",

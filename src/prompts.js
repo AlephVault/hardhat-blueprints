@@ -38,7 +38,7 @@ let prompts = {
         allowAccountIndex: true
     },
     "solidity": {
-        type: "plus:hardhat:blueprints:given-or-solidity-version-select"
+        type: "plus:hardhat:given-or-solidity-version-select"
     }
 }
 
