@@ -1,6 +1,6 @@
 {
   "name": "hardhat-blueprints",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A hardhat plugin offering the possibility to generate new contract files (.sol) out of an extensible list of contract blueprints",
   "main": "src/index.js",
   "scripts": {
@@ -23,6 +23,6 @@
   "homepage": "https://github.com/AlephVault/hardhat-blueprints#readme",
   "peerDependencies": {
     "hardhat": "^2.22.5",
-    "hardhat-enquirer-plus": "^1.0.6"
+    "hardhat-enquirer-plus": "^1.0.7"
   }
 }
