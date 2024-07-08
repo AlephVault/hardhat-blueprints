@@ -58,7 +58,7 @@ function registerBlueprint(key, defaultName, title, filePath, scriptType, argume
  */
 function applyTemplate(filePath, replacements, toFilePath) {
     const template = fs.readFileSync(filePath, {encoding: 'utf8'});
-    const data = template.replace(/#(\w+)#/g, (match, key) => {
+    const data = template.replace(/#([A-Za-z0-9_]+)#/g, (match, key) => {
         return replacements[key] !== undefined ? replacements[key] : match;
     });
     fs.writeFileSync(toFilePath, data, {encoding: 'utf8'});
