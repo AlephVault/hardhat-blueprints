@@ -1,6 +1,7 @@
 const {scope} = require("hardhat/config");
 const {registerBlueprintArgumentType} = require("./prompts");
 const {registerBlueprint, executeBlueprint, blueprintsList} = require("./blueprints");
+const path = require("path");
 
 const scope_ = scope("blueprint");
 
@@ -29,6 +30,53 @@ scope_
             console.error(e);
         }
     });
+
+const __templates = path.resolve(__dirname, "..", "data", "templates");
+
+registerBlueprint(
+    "contract", "MyContract", "An empty contract",
+    path.resolve(__templates, "solidity", "Contract.sol.template"),
+    "solidity", []
+);
+registerBlueprint(
+    "interface", "MyInterface", "An empty interface",
+    path.resolve(__templates, "solidity", "Interface.sol.template"),
+    "solidity", []
+);
+registerBlueprint(
+    "library", "MyLibrary", "An empty library",
+    path.resolve(__templates, "solidity", "Library.sol.template"),
+    "solidity", []
+);
+registerBlueprint(
+    "existing-contract-deployment-module", "MyModule",
+    "An ignition module for an existing contract (by artifact ID and contract address)",
+    path.resolve(__templates, "solidity", "Library.sol.template"),
+    "ignition-module", [
+        {
+            name: "CONTRACT_NAME",
+            message: "Choose one of your contract artifacts",
+            promptType: "contract"
+        },
+        {
+            name: "CONTRACT_ADDRESS",
+            message: "Tell the address where the contract is located at",
+            promptType: "address"
+        }
+    ]
+);
+registerBlueprint(
+    "new-contract-deployment-module", "MyModule",
+    "An ignition module for a new contract (by artifact ID)",
+    path.resolve(__templates, "solidity", "Library.sol.template"),
+    "ignition-module", [
+        {
+            name: "CONTRACT_NAME",
+            message: "Choose one of your contract artifacts",
+            promptType: "contract"
+        }
+    ]
+);
 
 module.exports = {
     registerBlueprintArgumentType, registerBlueprint,

@@ -14,6 +14,9 @@ let prompts = {
         makeInvalidInputMessage: (v) => `Invalid identifier: ${v}`,
         onInvalidGiven: (v) => console.error(`Invalid given identifier: ${v}`)
     },
+    "contract": {
+        type: "plus:hardhat:given-or-contract-select"
+    },
     "number": {
         type: "plus:given-or-valid-number-input",
         convert: "string"
