@@ -1,33 +1,35 @@
 const {scope} = require("hardhat/config");
+const {registerBlueprintArgumentType} = require("./prompts");
+const {registerBlueprint, executeBlueprint, blueprintsList} = require("./blueprints");
 
-// The list of blueprints. Each one has {defaultName, filePath, arguments}.
-let blueprints = {};
+const scope_ = scope("blueprint");
 
-// The elements to render to pick a contract.
-let blueprintsList = [];
-
-/**
- * Registers a blueprint.
- * @param key The internal name of the contract entry. It must be unique.
- * @param title The title/description for the option.
- * @param defaultName The default name for the contract.
- * @param filePath The path to the template file.
- * @param arguments The list of arguments. Each one must be an entry like
- * this: {name, message, promptType} where name and message will directly
- * be forwarded to `enquirer` prompts, while the promptType will be either
- * a registered preset (e.g. string, number, contract, boolean, address or
- * smart address, or others that may come across later) or a one-off prompt
- * entry (which completely would match an entry in a call to enquirer's
- * prompt() method).
- */
-function registerBlueprint(key, defaultName, title, filePath, arguments) {
-    if (blueprints[key]) {
-        throw new Error(`Blueprint key already registered: ${key}`);
-    }
-    blueprintsList.push({name: key, message: title});
-    blueprints[key] = {defaultName, filePath, arguments};
-}
+scope_
+    .task("apply", "Picks and applies a template")
+    .addOptionalPositionalParam("template", "The template key to apply")
+    .addFlag("nonInteractive", "Ensure this execution is not interactive (raising an error when it becomes interactive)")
+    .addOptionalVariadicPositionalParam("params", "Many (variadic) arguments like ARG=value (quote the pair properly) that will be used in the template")
+    .setAction(async ({template, nonInteractive, params}, hre, runSuper) => {
+        try {
+            const given = {};
+            (params || []).forEach((param) => {
+                const [key, ...parts] = param.split("=");
+                const value = parts.join("=");
+                if (value !== "") {
+                    given[key] = value;
+                }
+            });
+            given["SCRIPT_NAME"] = template;
+            const key = await new hre.enquirerPlus.Enquirer.GivenOrContractSelect({
+                given: template, nonInteractive,
+                onInvalidGiven: (v) => console.error(`Unknown template: ${template}`)
+            }).run();
+            await executeBlueprint(hre, key, nonInteractive);
+        } catch (e) {
+            console.error(e);
+        }
+    });
 
 module.exports = {
-    registerBlueprint
+    registerBlueprintArgumentType, registerBlueprint,
 }
