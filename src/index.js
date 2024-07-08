@@ -21,8 +21,8 @@ scope_
                 }
             });
             given["SCRIPT_NAME"] = template;
-            const key = await new hre.enquirerPlus.Enquirer.GivenOrContractSelect({
-                given: template, nonInteractive,
+            const key = await new hre.enquirerPlus.Enquirer.GivenOrSelect({
+                given: template, nonInteractive, choices: blueprintsList,
                 onInvalidGiven: (v) => console.error(`Unknown template: ${template}`)
             }).run();
             await executeBlueprint(hre, key, nonInteractive);
