@@ -21,9 +21,6 @@
     "url": "https://github.com/AlephVault/hardhat-blueprints/issues"
   },
   "homepage": "https://github.com/AlephVault/hardhat-blueprints#readme",
-  "dependencies": {
-    "enquirer-plus": "^1.0.9"
-  },
   "peerDependencies": {
     "hardhat": "^2.22.5",
     "hardhat-enquirer-plus": "^1.0.2"
