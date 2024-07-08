@@ -31,6 +31,15 @@ scope_
         }
     });
 
+scope_
+    .task("list", "Lists all the available blueprints")
+    .setAction(({}, hre, runSuper) => {
+        console.log("These are the available blueprints you can use in the `apply` command:");
+        blueprintsList.forEach(({name, message}) => {
+            console.log(`- ${name}: ${message}`)
+        });
+    });
+
 const __templates = path.resolve(__dirname, "..", "data", "templates");
 
 registerBlueprint(
