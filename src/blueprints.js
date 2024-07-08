@@ -2,7 +2,6 @@
 const {preparePrompts} = require("./prompts");
 const fs = require("fs");
 const path = require("path");
-const GivenOrSolidityVersionSelect = require("./solidity");
 const blueprints = {};
 
 // The elements to render to pick a contract.
@@ -98,5 +97,5 @@ async function executeBlueprint(hre, key, nonInteractive, givenValues) {
 }
 
 module.exports = {
-    registerBlueprint, executeBlueprint, blueprintsList
+    registerBlueprint, executeBlueprint, blueprintsList, blueprints
 }

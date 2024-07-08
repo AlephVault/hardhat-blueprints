@@ -1,6 +1,6 @@
 const {scope} = require("hardhat/config");
 const {registerBlueprintArgumentType} = require("./prompts");
-const {registerBlueprint, executeBlueprint, blueprintsList} = require("./blueprints");
+const {registerBlueprint, executeBlueprint, blueprintsList, blueprints} = require("./blueprints");
 const path = require("path");
 
 const scope_ = scope("blueprint");
@@ -36,7 +36,10 @@ scope_
     .setAction(({}, hre, runSuper) => {
         console.log("These are the available blueprints you can use in the `apply` command:");
         blueprintsList.forEach(({name, message}) => {
-            console.log(`- ${name}: ${message}`)
+            console.log(`- ${name}: ${message}\n  - Arguments:`)
+            blueprints[name].arguments.forEach((argument) => {
+                console.log(`    - ${argument.name}: ${argument.description || 'No description'}`);
+            })
         });
     });
 
@@ -48,6 +51,7 @@ registerBlueprint(
     "solidity", [
         {
             name: "SOLIDITY_VERSION",
+            description: "The Solidity version for the new file",
             message: "Choose the solidity version for this file",
             promptType: "solidity"
         }
@@ -59,6 +63,7 @@ registerBlueprint(
     "solidity", [
         {
             name: "SOLIDITY_VERSION",
+            description: "The Solidity version for the new file",
             message: "Choose the solidity version for this file",
             promptType: "solidity"
         }
@@ -70,6 +75,7 @@ registerBlueprint(
     "solidity", [
         {
             name: "SOLIDITY_VERSION",
+            description: "The Solidity version for the new file",
             message: "Choose the solidity version for this file",
             promptType: "solidity"
         }
@@ -82,11 +88,13 @@ registerBlueprint(
     "ignition-module", [
         {
             name: "CONTRACT_NAME",
+            description: "The ID of a compiled contract artifact",
             message: "Choose one of your contract artifacts",
             promptType: "contract"
         },
         {
             name: "CONTRACT_ADDRESS",
+            description: "The address where the contract is deployed",
             message: "Tell the address where the contract is located at",
             promptType: "address"
         }
@@ -99,6 +107,7 @@ registerBlueprint(
     "ignition-module", [
         {
             name: "CONTRACT_NAME",
+            description: "The ID of a compiled contract artifact",
             message: "Choose one of your contract artifacts",
             promptType: "contract"
         }
