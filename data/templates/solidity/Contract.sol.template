@@ -1,0 +1,6 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^#SOLIDITY_VERSION#;
+
+contract #SCRIPT_NAME# {
+    constructor() {}
+}

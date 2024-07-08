@@ -10,13 +10,13 @@ const blueprintsList = [];
 
 // The supported template types.
 const templateTypes = {
-    "contract": {
-        description: "contract",
+    "solidity": {
+        description: "solidity script",
         extension: "sol",
         target: "contracts"
     },
     "ignition-module": {
-        description: "ignition-module",
+        description: "ignition module",
         extension: "js",
         target: ["ignition", "modules"]
     }
