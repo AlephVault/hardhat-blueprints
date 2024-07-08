@@ -52,7 +52,7 @@ Which details many entries (there are 5 built-in entries by default), like "cont
 "interface" and 3 more.
 
 If you expect a blueprint to be available for use, either provided by your own code or a
-different plug-in, ensure that it is listed here (otherwise, it won't be available).
+different plugin, ensure that it is listed here (otherwise, it won't be available).
 
 ## Applying a blueprint
 
@@ -80,3 +80,120 @@ This can be done in two ways (which can be partially applied):
    1. This includes the `SCRIPT_NAME` argument (e.g. SCRIPT_NAME=MySampleContract for the
       "contract" example).
 3. The file will be immediately generated.
+
+## About the parameters
+
+The parameter system is based on `enquirer` but, in this case, it has an upper level of
+abstraction (which is, for example, useful for describing the metadata in the `list` task).
+
+So these are actually not prompts but instead _presets_ or _argument types_, which are still
+built on top of prompts. The available argument types are strings:
+
+- `typeName`: A PascalCase name, valid for contract/interface/library names.
+- `identifier`: A camelCase name, valid for variable or function names.
+- `contract`: A reference to a contract (from compiled artifacts only).
+- `number`: A positive, base-10, number.
+- `integer`: A positive, base-10 or 0x-prefixed base-16, number.
+- `boolean`: A boolean value. You'll use `true` or `false` there.
+- `address`: A checksum-valid address.
+- `smart-address`: A checksum-valid address or an account index (works both in viem and ethers).
+- `solidity` A solidity version, in format X.Y.Z. It must be one of the versions installed in
+  your project.
+- Alternatively, an object. The format of this object is the same as the entries used in the
+  `prompt` method in the `enquirer` library (but also considering the available types from the
+  `hardhat-enquirer-plus` package).
+
+To create a _new_ argument type, not listed among these (and not wishing to use the custom
+object as a one-off type), you can call:
+
+```javascript
+const {registerBlueprintArgumentType} = require("hardhat-blueprints/argumentTypes");
+
+// Registering a new "bytes32-hex" type:
+registerBlueprintArgumentType(
+    "bytes32-hex", {
+        type: "plus:given-or-valid-input",
+        validate: /^0x[a-f0-9]{64}$/,
+        makeInvalidInputMessage: (v) => `Invalid bytes32 string: ${v}`,
+        onInvalidGiven: (v) => console.error(`Invalid given bytes32 string: ${v}`)
+    }, "A 0x-prefixed byte-aligned binary string of 32 bytes"
+);
+```
+
+It will work as expected when you try to define arguments of `"bytes32-hex"` type for
+your new blueprints.
+
+You'll only typically need this when developing your own plugin (on top of this one)
+which needs to also define new types for some blueprints on its own.
+
+## Registering a new blueprint
+
+To create a _new_ blueprint, not listed among the default blueprints described here,
+you can call:
+
+```javascript
+const {registerBlueprintArgumentType} = require("hardhat-blueprints");
+const {registerBlueprintArgumentType} = require("hardhat-blueprints/argumentTypes");
+
+// Let's define two new argument types as well.
+registerBlueprintArgumentType(
+    "erc20-symbol", {
+        type: "plus:given-or-valid-input",
+        validate: /^[A-Z][A-Z]{2,}$/,
+        makeInvalidInputMessage: (v) => `Invalid ERC20 symbol: ${v}`,
+        onInvalidGiven: (v) => console.error(`Invalid given ERC20 symbol: ${v}`)
+    }, "An uppercase (letter-starting) short ERC20 symbol name"
+);
+registerBlueprintArgumentType(
+    "erc20-token-name", {
+        type: "plus:given-or-valid-input",
+        validate: /^[ A-Za-z0-9_-]+$/,
+        makeInvalidInputMessage: (v) => `Invalid ERC20 token name: ${v}`,
+        onInvalidGiven: (v) => console.error(`Invalid given ERC20 token name: ${v}`)
+    }, "An ERC20 token title/name"
+);
+
+// Let's say it is an OpenZeppelin-based ERC20 contract.
+const filePath = path.resolve(__dirname, "path", "to", "my", "ERC20.sol.template");
+registerBlueprint(
+    "erc-20", "MyERC20", "An OpenZeppelin-based ERC20 contract",
+    filePath, "solidity", [{
+        // You'll typically define this argument for .sol files.
+        name: "SOLIDITY_VERSION",
+        description: "The Solidity version for the new file",
+        message: "Choose the solidity version for this file",
+        argumentType: "solidity"
+    }, {
+        name: "SYMBOL",
+        description: "The symbol for this token",
+        message: "What's the symbol for your token?",
+        argumentType: "erc20-symbol"
+    }, {
+        name: "TOKEN_NAME",
+        description: "The name for this token",
+        message: "Give a name/title to your token",
+        argumentType: "erc20-token-name"
+    }]
+);
+```
+
+__PLEASE NOTE:__ You must not define the `SCRIPT_NAME` argument. It is already defined.
+
+The `ERC20.sol.template` contents will look like this:
+
+```solidity
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity #SOLIDITY_VERSION#;
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract #SCRIPT_NAME# is ERC20 {
+    constructor() ERC20(#TOKEN_NAME#, #SYMBOL#) {}
+}
+```
+
+Notice how both `SCRIPT_NAME` and the oter 3 arguments are defined. They'll be properly
+accounted for when trying the command:
+
+```shell
+npx hardhat blueprint apply erc20 ... # the arguments here
+```
