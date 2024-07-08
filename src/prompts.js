@@ -33,6 +33,9 @@ let prompts = {
     "smart-address": {
         type: "plus:hardhat:given-or-valid-address-input",
         allowAccountIndex: true
+    },
+    "solidity": {
+        type: "plus:hardhat:blueprints:given-or-solidity-version-select"
     }
 }
 
