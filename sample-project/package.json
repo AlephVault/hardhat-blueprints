@@ -16,6 +16,6 @@
     "@nomicfoundation/hardhat-toolbox": "^5.0.0"
   },
   "peerDependencies": {
-    "hardhat-enquirer-plus": "^1.0.5"
+    "hardhat-enquirer-plus": "^1.0.6"
   }
 }
