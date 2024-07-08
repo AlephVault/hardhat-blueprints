@@ -58,7 +58,7 @@ function preparePrompt(name, message, promptType, nonInteractive, given) {
  * @param promptTypeSpec The object depicting a prompt (in the same
  * format that would be provided for enquirer's prompt() method).
  */
-function registerPromptType(promptType, promptTypeSpec) {
+function registerBlueprintArgumentType(promptType, promptTypeSpec) {
     if (prompts[promptType] !== undefined) {
         throw new Error(`A prompt type is already registered with this name: ${promptType}`);
     }
@@ -67,18 +67,21 @@ function registerPromptType(promptType, promptTypeSpec) {
 
 /**
  * Prepares all the given arguments into enquirer's prompts.
- * Each element must be {name, message, promptType[, given]}.
+ * Each element must be {name, message, promptType}.
  * @param arguments The list of argument entries.
  * @param nonInteractive Flag to tell whether the interaction must
  * not become interactive (by raising an error) or can be.
+ * @param givenValues An optional set of given values (only one
+ * per argument name).
  * @returns {Array} The native prompts.
  */
-function preparePrompts(arguments, nonInteractive) {
-    return arguments.map(({name, message, promptType, given}) => preparePrompt(
-        name, message, promptType, nonInteractive, given
+function preparePrompts(arguments, nonInteractive, givenValues) {
+    givenValues = givenValues || {};
+    return arguments.map(({name, message, promptType}) => preparePrompt(
+        name, message, promptType, nonInteractive, givenValues[name]
     ));
 }
 
 module.exports = {
-    preparePrompts, registerPromptType
+    preparePrompts, registerBlueprintArgumentType
 }
