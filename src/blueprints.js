@@ -1,5 +1,5 @@
 // The list of blueprints. Each one has {defaultName, filePath, arguments}.
-const {preparePrompts} = require("./prompts");
+const {preparePrompts} = require("./promptTypes");
 const fs = require("fs");
 const path = require("path");
 const blueprints = {};

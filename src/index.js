@@ -1,5 +1,5 @@
 const {scope} = require("hardhat/config");
-const {registerBlueprintArgumentType} = require("./prompts");
+const {registerBlueprintArgumentType, promptTypes} = require("./promptTypes");
 const {registerBlueprint, executeBlueprint, blueprintsList, blueprints} = require("./blueprints");
 const path = require("path");
 
@@ -38,7 +38,7 @@ scope_
         blueprintsList.forEach(({name, message}) => {
             console.log(`- ${name}: ${message}\n  - Arguments:`)
             blueprints[name].arguments.forEach((argument) => {
-                console.log(`    - ${argument.name}: ${argument.description || 'No description'}`);
+                console.log(`    - ${argument.name}: ${argument.description || 'No description'} (${(promptTypes[argument.promptType] || {}).description || "unknown"})`);
             })
         });
     });
@@ -88,7 +88,7 @@ registerBlueprint(
     "ignition-module", [
         {
             name: "CONTRACT_NAME",
-            description: "The ID of a compiled contract artifact",
+            description: "The type to use for the contract",
             message: "Choose one of your contract artifacts",
             promptType: "contract"
         },
@@ -107,7 +107,7 @@ registerBlueprint(
     "ignition-module", [
         {
             name: "CONTRACT_NAME",
-            description: "The ID of a compiled contract artifact",
+            description: "The type to use for the contract",
             message: "Choose one of your contract artifacts",
             promptType: "contract"
         }
