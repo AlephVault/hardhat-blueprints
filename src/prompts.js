@@ -1,41 +1,50 @@
 let prompts = {
-    "contractName": {
+    "typeName": {
         type: "plus:given-or-valid-input",
         validate: /^[A-Z][A-Za-z0-9_]*$/,
-        makeInvalidInputMessage: (v) => `Invalid contract name: ${v}`,
-        onInvalidGiven: (v) => console.error(`Invalid given contract name: ${v}`)
+        makeInvalidInputMessage: (v) => `Invalid type name: ${v}`,
+        onInvalidGiven: (v) => console.error(`Invalid given type name: ${v}`),
+        description: "The PascalCase name of a type"
     },
     "identifier": {
         type: "plus:given-or-valid-input",
         validate: /^[a-z][A-Za-z0-9_]*$/,
         makeInvalidInputMessage: (v) => `Invalid identifier: ${v}`,
-        onInvalidGiven: (v) => console.error(`Invalid given identifier: ${v}`)
+        onInvalidGiven: (v) => console.error(`Invalid given identifier: ${v}`),
+        description: "A camelCase identifier"
     },
     "contract": {
-        type: "plus:hardhat:given-or-contract-select"
+        type: "plus:hardhat:given-or-contract-select",
+        description: "The ID of an artifact"
     },
     "number": {
         type: "plus:given-or-valid-number-input",
-        convert: "string"
+        convert: "string",
+        description: "A positive number"
     },
     "integer": {
         type: "plus:given-or-valid-number-input",
         integerOnly: true, allowHex: true,
-        convert: "string"
+        convert: "string",
+        description: "A positive integer"
     },
     "boolean": {
         type: "plus:given-or-boolean-select",
+        description: "(true or false)"
     },
     "address": {
         type: "plus:hardhat:given-or-valid-address-input",
-        allowAccountIndex: false
+        allowAccountIndex: false,
+        description: "A checksum address"
     },
     "smart-address": {
         type: "plus:hardhat:given-or-valid-address-input",
-        allowAccountIndex: true
+        allowAccountIndex: true,
+        description: "A checksum address or account index"
     },
     "solidity": {
-        type: "plus:hardhat:given-or-solidity-version-select"
+        type: "plus:hardhat:given-or-solidity-version-select",
+        description: "An X.Y.Z Solidity version in the project"
     }
 }
 
