@@ -2,10 +2,24 @@
 const {preparePrompts} = require("./prompts");
 const fs = require("fs");
 const path = require("path");
-let blueprints = {};
+const blueprints = {};
 
 // The elements to render to pick a contract.
-let blueprintsList = [];
+const blueprintsList = [];
+
+// The supported template types.
+const templateTypes = {
+    "contract": {
+        description: "contract",
+        extension: "sol",
+        target: "contracts"
+    },
+    "ignition-module": {
+        description: "ignition-module",
+        extension: "js",
+        target: ["ignition", "modules"]
+    }
+}
 
 /**
  * Registers a blueprint.
@@ -13,6 +27,8 @@ let blueprintsList = [];
  * @param title The title/description for the option.
  * @param defaultName The default name for the contract.
  * @param filePath The path to the template file.
+ * @param scriptType The script type. Only "contract" or "ignition-module"
+ * are supported.
  * @param arguments The list of arguments. Each one must be an entry like
  * this: {name, message, promptType} where name and message will directly
  * be forwarded to `enquirer` prompts, while the promptType will be either
@@ -21,12 +37,15 @@ let blueprintsList = [];
  * entry (which completely would match an entry in a call to enquirer's
  * prompt() method).
  */
-function registerBlueprint(key, defaultName, title, filePath, arguments) {
+function registerBlueprint(key, defaultName, title, filePath, scriptType, arguments) {
     if (blueprints[key]) {
         throw new Error(`Blueprint key already registered: ${key}`);
     }
+    if (!templateTypes[scriptType]) {
+        throw new Error(`Unknown script type: ${scriptType}`);
+    }
     blueprintsList.push({name: key, message: title});
-    blueprints[key] = {defaultName, filePath, arguments};
+    blueprints[key] = {defaultName, filePath, arguments, scriptType};
 }
 
 /**
@@ -54,13 +73,14 @@ function applyTemplate(filePath, replacements, toFilePath) {
  * @param nonInteractive Flag to tell whether the interaction must
  * not become interactive (by raising an error) or can be.
  * @param givenValues A mapping of given values to use.
- * @param scriptType The script type. Typically, something like
- * "contract" or "deployment module"
- * @param extension The extension of the new file.
  */
-async function executeBlueprint(hre, key, nonInteractive, givenValues, scriptType, extension) {
+async function executeBlueprint(hre, key, nonInteractive, givenValues) {
     const blueprint = blueprints[key];
     if (!blueprint) throw new Error(`Unknown blueprint: ${key}`);
+    const templateType = templateTypes[blueprint.scriptType];
+    const {extension, target, description: scriptType} = templateType;
+    const targetDirectory = typeof target === "string" ?
+        hre.config.paths[target] : path.resolve(hre.config.paths.root, ...target);
     const prompts = [
         {
             type: "plus:given-or-valid-input",
@@ -72,11 +92,10 @@ async function executeBlueprint(hre, key, nonInteractive, givenValues, scriptTyp
         }, ...preparePrompts(blueprint.arguments, nonInteractive, givenValues)
     ];
     const answers = await new hre.enquirerPlus.Enquirer().prompt(prompts);
-    const contractsPath = hre.config.paths.sources;
-    const toFilePath = path.resolve(contractsPath, answers.SCRIPT_NAME + "." + extension);
+    const toFilePath = path.resolve(targetDirectory, answers.SCRIPT_NAME + "." + extension);
     applyTemplate(blueprint.filePath, answers, toFilePath);
 }
 
 module.exports = {
-    registerBlueprint
+    registerBlueprint, executeBlueprint, blueprintsList
 }
