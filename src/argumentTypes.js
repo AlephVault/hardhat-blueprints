@@ -23,18 +23,26 @@ const defaultArgumentTypes = {
         },
         description: "The ID of an artifact"
     },
-    "number": {
+    "numeric-string": {
         prompt: {
             type: "plus:given-or-valid-number-input",
             convert: "string"
         },
         description: "A positive number"
     },
-    "integer": {
+    "integer-string": {
         prompt: {
             type: "plus:given-or-valid-number-input",
             integerOnly: true, allowHex: true,
             convert: "string"
+        },
+        description: "A positive integer"
+    },
+    "bigint": {
+        prompt: {
+            type: "plus:given-or-valid-number-input",
+            integerOnly: true, allowHex: true,
+            convert: "bigint"
         },
         description: "A positive integer"
     },

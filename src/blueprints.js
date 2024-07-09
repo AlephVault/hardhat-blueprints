@@ -70,9 +70,9 @@ function applyTemplate(filePath, replacements, toFilePath) {
  * @param nonInteractive Flag to tell whether the interaction must
  * not become interactive (by raising an error) or can be.
  * @param givenValues A mapping of given values to use.
- * @returns {string} The result filepath.
+ * @returns {Promise<string>} The result filepath.
  */
-async function executeBlueprint(hre, key, nonInteractive, givenValues) {
+async function applyBlueprint(hre, key, nonInteractive, givenValues) {
     const blueprint = hre.blueprints.map[key];
     if (!blueprint) throw new Error(`Unknown blueprint: ${key}`);
     const templateType = templateTypes[blueprint.scriptType];
@@ -96,5 +96,5 @@ async function executeBlueprint(hre, key, nonInteractive, givenValues) {
 }
 
 module.exports = {
-    registerBlueprint, executeBlueprint
+    registerBlueprint, applyBlueprint
 }

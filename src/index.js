@@ -1,6 +1,6 @@
 const {scope, extendEnvironment} = require("hardhat/config");
-const {registerBlueprintArgumentType, defaultArgumentTypes} = require("./argumentTypes");
-const {registerBlueprint, executeBlueprint} = require("./blueprints");
+const {registerBlueprintArgumentType, defaultArgumentTypes, prepareArgumentPrompts} = require("./argumentTypes");
+const {registerBlueprint, applyBlueprint} = require("./blueprints");
 const path = require("path");
 
 const scope_ = scope("blueprint");
@@ -26,7 +26,7 @@ scope_
                 given: template, nonInteractive, choices: hre.blueprints.list,
                 onInvalidGiven: (v) => console.error(`Unknown template: ${template}`)
             }).run();
-            const filename = await hre.blueprints.executeBlueprint(key, nonInteractive, given);
+            const filename = await hre.blueprints.applyBlueprint(key, nonInteractive, given);
             console.log(`File ${filename} successfully generated.`);
         } catch (e) {
             console.error(e);
@@ -58,7 +58,10 @@ extendEnvironment((hre) => {
         registerBlueprintArgumentType: (argumentType, promptSpec, description) => registerBlueprintArgumentType(
             hre, argumentType, promptSpec, description
         ),
-        executeBlueprint: (key, nonInteractive, givenValues) => executeBlueprint(
+        prepareArgumentPrompts: (arguments, nonInteractive, givenValues) => prepareArgumentPrompts(
+            hre, arguments, nonInteractive, givenValues
+        ),
+        applyBlueprint: (key, nonInteractive, givenValues) => applyBlueprint(
             hre, key, nonInteractive, givenValues
         )
     };

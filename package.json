@@ -1,6 +1,6 @@
 {
   "name": "hardhat-blueprints",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A hardhat plugin offering the possibility to generate new contract files (.sol) out of an extensible list of contract blueprints",
   "main": "src/index.js",
   "scripts": {

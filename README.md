@@ -5,7 +5,7 @@ A hardhat plugin offering the possibility to generate new contract files (.sol) 
 Run this command to install it from NPM:
 
 ```shell
-npm install hardhat-blueprints@^1.0.6
+npm install hardhat-blueprints@^1.0.7
 ```
 
 # Usage
@@ -92,8 +92,9 @@ built on top of prompts. The available argument types are strings:
 - `typeName`: A PascalCase name, valid for contract/interface/library names.
 - `identifier`: A camelCase name, valid for variable or function names.
 - `contract`: A reference to a contract (from compiled artifacts only).
-- `number`: A positive, base-10, number.
-- `integer`: A positive, base-10 or 0x-prefixed base-16, number.
+- `numeric-string`: A positive, base-10, number. Returns a string.
+- `integer-string`: A positive, base-10 or 0x-prefixed base-16, number. Returns a string.
+- `bigint`: A positive, base-10 or 0x-prefixed base-16, number. Returns a bigint.
 - `boolean`: A boolean value. You'll use `true` or `false` there.
 - `address`: A checksum-valid address.
 - `smart-address`: A checksum-valid address or an account index (works both in viem and ethers).
@@ -102,6 +103,8 @@ built on top of prompts. The available argument types are strings:
 - Alternatively, an object. The format of this object is the same as the entries used in the
   `prompt` method in the `enquirer` library (but also considering the available types from the
   `hardhat-enquirer-plus` package).
+
+### Registering a new argument type
 
 To create a _new_ argument type, not listed among these (and not wishing to use the custom
 object as a one-off type), you can call:
@@ -116,6 +119,16 @@ hre.blueprints.registerBlueprintArgumentType(
         onInvalidGiven: (v) => console.error(`Invalid given bytes32 string: ${v}`)
     }, "A 0x-prefixed byte-aligned binary string of 32 bytes"
 );
+
+// Registering a new "bytes-hex" type:
+hre.blueprints.registerBlueprintArgumentType(
+    "bytes-hex", {
+        type: "plus:given-or-valid-input",
+        validate: /^0x([a-f0-9]{2})*$/,
+        makeInvalidInputMessage: (v) => `Invalid bytes string: ${v}`,
+        onInvalidGiven: (v) => console.error(`Invalid given bytes string: ${v}`)
+    }, "A 0x-prefixed byte-aligned binary string"
+);
 ```
 
 It will work as expected when you try to define arguments of `"bytes32-hex"` type for
@@ -123,6 +136,49 @@ your new blueprints.
 
 You'll only typically need this when developing your own plugin (on top of this one)
 which needs to also define new types for some blueprints on its own.
+
+### Manually applying / reading arguments
+
+Considering the given types (and new ones) you could manually implement reading arguments
+by invoking this method, for example:
+
+```javascript
+const prompts = await hre.blueprints.prepareArgumentPrompts([
+    {
+        name: "fromAddress",
+        description: "The source address",
+        message: "Enter the source address",
+        argumentType: "smart-address"
+    },
+    {
+        name: "toAddress",
+        description: "The destination address",
+        message: "Enter the destination address",
+        argumentType: "smart-address"
+    },
+    {
+        name: "id",
+        description: "The token id",
+        message: "Enter the ID of the token",
+        argumentType: "bigint"
+    },
+    {
+        name: "value",
+        description: "The token id",
+        message: "Enter the ID of the token",
+        argumentType: "bigint"
+    },
+    {
+        name: "data",
+        description: "The data",
+        message: "Enter the data to the method",
+        argumentType: "bytes-hex"
+    }
+]);
+console.log(await new hre.enquirerPlus.Enquirer().prompt(prompts));
+```
+
+In the end, the `result` will be a literal object with fields `id`, `value`, `data`, `fromAddress`, `toAddress`.
 
 ## Registering a new blueprint
 
@@ -192,3 +248,21 @@ accounted for when trying the command:
 ```shell
 npx hardhat blueprint apply erc20 ... # the arguments here
 ```
+
+## Manually executing / applying a blueprint
+You have two options here:
+
+1. Invoke the `apply` scoped task (running children tasks is documented in hardhat's
+   official docs), properly specifying the arguments.
+2. Invoke `hre.blueprints.applyBlueprint`. For example, to apply the `contract` blueprint:
+
+   ```shell
+   # 1. nonInteractive is being set to false, thus allowing prompts
+   #    if something were to be invalid. Pass it as true in your
+   #    calls if you want to ensure that no interactions must occur
+   #    via prompting (raising an error instead).
+   # 2. Provided 0.8.24 is a valid solidity version in your project.
+   #    As SCRIPT_NAME is given, also any other expected argument
+   #    can also be given.
+   await hre.blueprints.applyBlueprint("contract", false, {"SCRIPT_NAME": "MyContract", "SOLIDITY_VERSION": "0.8.24"});
+   ```
