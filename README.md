@@ -187,7 +187,7 @@ pragma solidity #SOLIDITY_VERSION#;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract #SCRIPT_NAME# is ERC20 {
-    constructor() ERC20(#TOKEN_NAME#, #SYMBOL#) {}
+    constructor() ERC20("#TOKEN_NAME#", "#SYMBOL#") {}
 }
 ```
 
