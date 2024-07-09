@@ -87,7 +87,7 @@ async function executeBlueprint(hre, key, nonInteractive, givenValues) {
             onInvalidGiven: (v) => console.error(`Invalid given ${scriptType} name: ${v}`),
             initial: blueprint.defaultName,
             name: "SCRIPT_NAME"
-        }, ...prepareArgumentPrompts(blueprint.arguments, nonInteractive, givenValues)
+        }, ...prepareArgumentPrompts(hre, blueprint.arguments, nonInteractive, givenValues)
     ];
     const answers = await new hre.enquirerPlus.Enquirer().prompt(prompts);
     const toFilePath = path.resolve(targetDirectory, answers.SCRIPT_NAME + "." + extension);
