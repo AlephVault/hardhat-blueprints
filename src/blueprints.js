@@ -2,10 +2,6 @@
 const {prepareArgumentPrompts} = require("./argumentTypes");
 const fs = require("fs");
 const path = require("path");
-const blueprints = {};
-
-// The elements to render to pick a contract.
-const blueprintsList = [];
 
 // The supported template types.
 const templateTypes = {
@@ -23,6 +19,7 @@ const templateTypes = {
 
 /**
  * Registers a blueprint.
+ * @param hre The hardhat runtime environment.
  * @param key The internal name of the contract entry. It must be unique.
  * @param title The title/description for the option.
  * @param defaultName The default name for the contract.
@@ -37,15 +34,15 @@ const templateTypes = {
  * entry (which completely would match an entry in a call to enquirer's
  * prompt() method).
  */
-function registerBlueprint(key, defaultName, title, filePath, scriptType, arguments) {
-    if (blueprints[key]) {
+function registerBlueprint(hre, key, defaultName, title, filePath, scriptType, arguments) {
+    if (hre.blueprints.map[key]) {
         throw new Error(`Blueprint key already registered: ${key}`);
     }
     if (!templateTypes[scriptType]) {
         throw new Error(`Unknown script type: ${scriptType}`);
     }
-    blueprintsList.push({name: key, message: title});
-    blueprints[key] = {defaultName, filePath, arguments, scriptType};
+    hre.blueprints.list.push({name: key, message: title});
+    hre.blueprints.map[key] = {defaultName, filePath, arguments, scriptType};
 }
 
 /**
@@ -76,7 +73,7 @@ function applyTemplate(filePath, replacements, toFilePath) {
  * @returns {string} The result filepath.
  */
 async function executeBlueprint(hre, key, nonInteractive, givenValues) {
-    const blueprint = blueprints[key];
+    const blueprint = hre.blueprints.map[key];
     if (!blueprint) throw new Error(`Unknown blueprint: ${key}`);
     const templateType = templateTypes[blueprint.scriptType];
     const {extension, target, description: scriptType} = templateType;
@@ -99,5 +96,5 @@ async function executeBlueprint(hre, key, nonInteractive, givenValues) {
 }
 
 module.exports = {
-    registerBlueprint, executeBlueprint, blueprintsList, blueprints
+    registerBlueprint, executeBlueprint
 }
