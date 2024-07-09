@@ -107,10 +107,8 @@ To create a _new_ argument type, not listed among these (and not wishing to use 
 object as a one-off type), you can call:
 
 ```javascript
-const {registerBlueprintArgumentType} = require("hardhat-blueprints/argumentTypes");
-
 // Registering a new "bytes32-hex" type:
-registerBlueprintArgumentType(
+hre.blueprints.registerBlueprintArgumentType(
     "bytes32-hex", {
         type: "plus:given-or-valid-input",
         validate: /^0x[a-f0-9]{64}$/,
@@ -132,11 +130,8 @@ To create a _new_ blueprint, not listed among the default blueprints described h
 you can call:
 
 ```javascript
-const {registerBlueprintArgumentType} = require("hardhat-blueprints");
-const {registerBlueprintArgumentType} = require("hardhat-blueprints/argumentTypes");
-
 // Let's define two new argument types as well.
-registerBlueprintArgumentType(
+hre.blueprints.registerBlueprintArgumentType(
     "erc20-symbol", {
         type: "plus:given-or-valid-input",
         validate: /^[A-Z][A-Z]{2,}$/,
@@ -144,7 +139,7 @@ registerBlueprintArgumentType(
         onInvalidGiven: (v) => console.error(`Invalid given ERC20 symbol: ${v}`)
     }, "An uppercase (letter-starting) short ERC20 symbol name"
 );
-registerBlueprintArgumentType(
+hre.blueprints.registerBlueprintArgumentType(
     "erc20-token-name", {
         type: "plus:given-or-valid-input",
         validate: /^[ A-Za-z0-9_-]+$/,
@@ -155,7 +150,7 @@ registerBlueprintArgumentType(
 
 // Let's say it is an OpenZeppelin-based ERC20 contract.
 const filePath = path.resolve(__dirname, "path", "to", "my", "ERC20.sol.template");
-registerBlueprint(
+hre.blueprints.registerBlueprint(
     "erc-20", "MyERC20", "An OpenZeppelin-based ERC20 contract",
     filePath, "solidity", [{
         // You'll typically define this argument for .sol files.
