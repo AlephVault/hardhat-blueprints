@@ -22,6 +22,7 @@ scope_
             });
             given["SCRIPT_NAME"] = template;
             const key = await new hre.enquirerPlus.Enquirer.GivenOrSelect({
+                message: "Which template do you want to apply?",
                 given: template, nonInteractive, choices: blueprintsList,
                 onInvalidGiven: (v) => console.error(`Unknown template: ${template}`)
             }).run();

@@ -2,10 +2,10 @@
 const {prepareArgumentPrompts} = require("./argumentTypes");
 const fs = require("fs");
 const path = require("path");
-global.__blueprints = {};
+const blueprints = {};
 
 // The elements to render to pick a contract.
-global.__blueprintsList = [];
+const blueprintsList = [];
 
 // The supported template types.
 const templateTypes = {
@@ -38,14 +38,14 @@ const templateTypes = {
  * prompt() method).
  */
 function registerBlueprint(key, defaultName, title, filePath, scriptType, arguments) {
-    if (global.__blueprints[key]) {
+    if (blueprints[key]) {
         throw new Error(`Blueprint key already registered: ${key}`);
     }
     if (!templateTypes[scriptType]) {
         throw new Error(`Unknown script type: ${scriptType}`);
     }
-    global.__blueprintsList.push({name: key, message: title});
-    global.__blueprints[key] = {defaultName, filePath, arguments, scriptType};
+    blueprintsList.push({name: key, message: title});
+    blueprints[key] = {defaultName, filePath, arguments, scriptType};
 }
 
 /**
@@ -76,7 +76,7 @@ function applyTemplate(filePath, replacements, toFilePath) {
  * @returns {string} The result filepath.
  */
 async function executeBlueprint(hre, key, nonInteractive, givenValues) {
-    const blueprint = global.__blueprints[key];
+    const blueprint = blueprints[key];
     if (!blueprint) throw new Error(`Unknown blueprint: ${key}`);
     const templateType = templateTypes[blueprint.scriptType];
     const {extension, target, description: scriptType} = templateType;
@@ -99,5 +99,5 @@ async function executeBlueprint(hre, key, nonInteractive, givenValues) {
 }
 
 module.exports = {
-    registerBlueprint, executeBlueprint, blueprintsList: __blueprintsList, blueprints: __blueprints
+    registerBlueprint, executeBlueprint, blueprintsList, blueprints
 }
