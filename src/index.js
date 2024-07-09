@@ -26,7 +26,7 @@ scope_
                 given: template, nonInteractive, choices: hre.blueprints.list,
                 onInvalidGiven: (v) => console.error(`Unknown template: ${template}`)
             }).run();
-            const filename = await hre.blueprints.executeBlueprint(hre, key, nonInteractive, given);
+            const filename = await hre.blueprints.executeBlueprint(key, nonInteractive, given);
             console.log(`File ${filename} successfully generated.`);
         } catch (e) {
             console.error(e);
