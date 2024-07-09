@@ -1,4 +1,4 @@
-global.__argumentTypes = {
+const defaultArgumentTypes = {
     "typeName": {
         prompt: {
             type: "plus:given-or-valid-input",
@@ -69,6 +69,7 @@ global.__argumentTypes = {
 /**
  * Prepares a prompt. It picks a prompt type (or takes it as-is)
  * and adds the other arguments: name, message and given.
+ * @param hre The hardhat runtime environment.
  * @param name The internal name of the argument.
  * @param message The display message.
  * @param given The initial given value (optional).
@@ -78,30 +79,32 @@ global.__argumentTypes = {
  * argument types or a custom prompt.
  * @returns {*} The prompt entry.
  */
-function preparePrompt(name, message, argumentType, nonInteractive, given) {
+function preparePrompt(hre, name, message, argumentType, nonInteractive, given) {
     // First, the prompt type is either a textual/registered string
     // or a partial prompt object. Then, the other members are added.
     if (!argumentType) throw new Error("Cannot prepare a prompt with empty type");
-    return {name, message, given, ...(global.__argumentTypes[argumentType].prompt || argumentType)};
+    return {name, message, given, ...(hre.blueprints.argTypes[argumentType].prompt || argumentType)};
 }
 
 /**
  * Registers a prompt type for the arguments.
+ * @param hre The hardhat runtime environment.
  * @param argumentType The name of the prompt type.
  * @param promptSpec The object depicting a prompt (in the same
  * format that would be provided for enquirer's prompt() method).
  * @param description A description of how the type works.
  */
-function registerBlueprintArgumentType(argumentType, promptSpec, description) {
-    if (global.__argumentTypes[argumentType] !== undefined) {
+function registerBlueprintArgumentType(hre, argumentType, promptSpec, description) {
+    if (hre.blueprints.argTypes[argumentType] !== undefined) {
         throw new Error(`A prompt type is already registered with this name: ${argumentType}`);
     }
-    global.__argumentTypes[argumentType] = {prompt: promptSpec, description};
+    hre.blueprints.argTypes[argumentType] = {prompt: promptSpec, description};
 }
 
 /**
  * Prepares all the given arguments into enquirer's prompts.
  * Each element must be {name, message, promptType}.
+ * @param hre The hardhat runtime environment.
  * @param arguments The list of argument entries.
  * @param nonInteractive Flag to tell whether the interaction must
  * not become interactive (by raising an error) or can be.
@@ -109,13 +112,13 @@ function registerBlueprintArgumentType(argumentType, promptSpec, description) {
  * per argument name).
  * @returns {Array} The native prompts.
  */
-function prepareArgumentPrompts(arguments, nonInteractive, givenValues) {
+function prepareArgumentPrompts(hre, arguments, nonInteractive, givenValues) {
     givenValues = givenValues || {};
     return arguments.map(({name, message, argumentType}) => preparePrompt(
-        name, message, argumentType, nonInteractive, givenValues[name]
+        hre, name, message, argumentType, nonInteractive, givenValues[name]
     ));
 }
 
 module.exports = {
-    prepareArgumentPrompts, registerBlueprintArgumentType, argumentTypes: global.__argumentTypes
+    prepareArgumentPrompts, registerBlueprintArgumentType, defaultArgumentTypes
 }
