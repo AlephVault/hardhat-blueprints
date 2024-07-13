@@ -59,6 +59,12 @@ const defaultArgumentTypes = {
         },
         description: "An account index"
     },
+    "token-amount": {
+        prompt: {
+            type: "plus:hardhat:given-or-valid-token-amount-input"
+        },
+        description: "An denominated amount, like 1ether, 1.2gwei, or other standard units"
+    },
     "address": {
         prompt: {
             type: "plus:hardhat:given-or-valid-address-input",
