@@ -52,6 +52,13 @@ const defaultArgumentTypes = {
         },
         description: "(true or false)"
     },
+    "account": {
+        prompt: {
+            type: "plus:hardhat:given-or-valid-account-input",
+            allowAccountIndex: false
+        },
+        description: "An account index"
+    },
     "address": {
         prompt: {
             type: "plus:hardhat:given-or-valid-address-input",
