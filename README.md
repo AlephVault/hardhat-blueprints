@@ -98,10 +98,13 @@ built on top of prompts. The available argument types are strings:
 - `integer-string`: A positive, base-10 or 0x-prefixed base-16, number. Returns a string.
 - `bigint`: A positive, base-10 or 0x-prefixed base-16, number. Returns a bigint.
 - `boolean`: A boolean value. You'll use `true` or `false` there.
-- `address`: A checksum-valid address.
+- `account`: An account index (works both in viem and ethers).
+- `address`: A checksum-valid address (works both in viem and ethers).
 - `smart-address`: A checksum-valid address or an account index (works both in viem and ethers).
 - `solidity` A solidity version, in format X.Y.Z. It must be one of the versions installed in
   your project.
+- `token-amount`: A token amount with units, e.g.: "1.5ether", "2 ether", "1gwei", "0.5 gwei"
+  or other standard units.
 - Alternatively, an object. The format of this object is the same as the entries used in the
   `prompt` method in the `enquirer` library (but also considering the available types from the
   `hardhat-enquirer-plus` package).
