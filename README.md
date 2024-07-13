@@ -5,7 +5,7 @@ A hardhat plugin offering the possibility to generate new contract files (.sol) 
 Run this command to install it from NPM:
 
 ```shell
-npm install --save-dev hardhat-common-tools@^1.0.0 hardhat-enquirer-plus@^1.1.0 hardhat-blueprints@^1.0.8
+npm install --save-dev hardhat-common-tools@^1.0.0 hardhat-enquirer-plus@^1.1.0 hardhat-blueprints@^1.1.0
 ```
 
 # Usage
