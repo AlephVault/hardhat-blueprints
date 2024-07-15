@@ -104,7 +104,7 @@ function preparePrompt(hre, name, message, argumentType, nonInteractive, given) 
     // First, the prompt type is either a textual/registered string
     // or a partial prompt object. Then, the other members are added.
     if (!argumentType) throw new Error("Cannot prepare a prompt with empty type");
-    return {name, message, given, ...(hre.blueprints.argTypes[argumentType].prompt || argumentType)};
+    return {name, message, given, ...(hre.blueprints.argTypes[argumentType]?.prompt || argumentType)};
 }
 
 /**
