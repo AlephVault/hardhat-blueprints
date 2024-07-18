@@ -104,7 +104,7 @@ function preparePrompt(hre, name, message, argumentType, nonInteractive, given) 
     // First, the prompt type is either a textual/registered string
     // or a partial prompt object. Then, the other members are added.
     if (!argumentType) throw new Error("Cannot prepare a prompt with empty type");
-    return {name, message, given, ...(hre.blueprints.argTypes[argumentType]?.prompt || argumentType)};
+    return {name, message, nonInteractive, given, ...(hre.blueprints.argTypes[argumentType]?.prompt || argumentType)};
 }
 
 /**
@@ -120,6 +120,45 @@ function registerBlueprintArgumentType(hre, argumentType, promptSpec, descriptio
         throw new Error(`A prompt type is already registered with this name: ${argumentType}`);
     }
     hre.blueprints.argTypes[argumentType] = {prompt: promptSpec, description};
+}
+
+/**
+ * Makes an array applier to be used in an array prompt.
+ * @param hre The hardhat runtime environment.
+ * @param message The message (which can contain an ${index} chunk
+ * to insert the index in the message).
+ * @param argumentType The argument type for the element.
+ * @returns {function(*, *, *): Promise<"anyfunc"|"externref">} The applier.
+ */
+function arrayApplier(hre, {message, argumentType}) {
+    const prompt = preparePrompt(
+        hre, "element", argumentType, false, ""
+    );
+    return async function(index, given, nonInteractive) {
+        return (await hre.enquirerPlus.Enquirer.prompt([{
+            ...prompt, given, nonInteractive, message: message.replace("${index}", index)
+        }])).element;
+    }
+}
+
+/**
+ * Builds an argument of type Array.
+ * @param hre The hardhat runtime environment.
+ * @param message The message for the argument.
+ * @param description The description for the argument.
+ * @param name The name for the argument.
+ * @param length The length (optional; it must be a non-negative
+ * number for a fixed-length array, or undefined for a prompted
+ * length array).
+ * @param elements
+ * @returns {*} The structure for an argument of array type.
+ */
+function arrayArgument(hre, {message, description, name, length, elements}) {
+    return {
+        name, description, message, argumentType: {
+            type: "plus:given-or-array", length, applier: arrayApplier(hre, elements || {})
+        }
+    }
 }
 
 /**
@@ -141,5 +180,6 @@ function prepareArgumentPrompts(hre, arguments, nonInteractive, givenValues) {
 }
 
 module.exports = {
-    prepareArgumentPrompts, registerBlueprintArgumentType, defaultArgumentTypes
+    prepareArgumentPrompts, registerBlueprintArgumentType, defaultArgumentTypes,
+    arrayArgument
 }
