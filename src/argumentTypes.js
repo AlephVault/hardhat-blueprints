@@ -135,7 +135,7 @@ function arrayApplier(hre, {message, argumentType}) {
         throw new Error("The argumentType must be set when creating an array argument");
     }
     const prompt = preparePrompt(
-        hre, "element", argumentType, false, ""
+        hre, "element", message, argumentType, false, ""
     );
     return async function(index, given, nonInteractive) {
         return (await hre.enquirerPlus.Enquirer.prompt([{
