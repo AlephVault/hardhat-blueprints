@@ -1,5 +1,5 @@
 const {scope, extendEnvironment} = require("hardhat/config");
-const {registerBlueprintArgumentType, defaultArgumentTypes, prepareArgumentPrompts} = require("./argumentTypes");
+const {registerBlueprintArgumentType, defaultArgumentTypes, prepareArgumentPrompts, tupleArgument, arrayArgument} = require("./argumentTypes");
 const {registerBlueprint, applyBlueprint} = require("./blueprints");
 const path = require("path");
 
@@ -63,6 +63,12 @@ extendEnvironment((hre) => {
         ),
         applyBlueprint: (key, nonInteractive, givenValues) => applyBlueprint(
             hre, key, nonInteractive, givenValues
+        ),
+        tupleArgument: ({message, description, name, elements}) => tupleArgument(
+            hre, {message, description, name, elements}
+        ),
+        arrayArgument: ({message, description, name, length, elements}) => arrayArgument(
+            hre, {message, description, name, length, elements}
         )
     };
 
