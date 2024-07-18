@@ -126,17 +126,20 @@ function registerBlueprintArgumentType(hre, argumentType, promptSpec, descriptio
  * Makes an array applier to be used in an array prompt.
  * @param hre The hardhat runtime environment.
  * @param message The message (which can contain an ${index} chunk
- * to insert the index in the message).
+ * to insert the index in the message). It is optional.
  * @param argumentType The argument type for the element.
  * @returns {function(*, *, *): Promise<"anyfunc"|"externref">} The applier.
  */
 function arrayApplier(hre, {message, argumentType}) {
+    if (!argumentType) {
+        throw new Error("The argumentType must be set when creating an array argument");
+    }
     const prompt = preparePrompt(
         hre, "element", argumentType, false, ""
     );
     return async function(index, given, nonInteractive) {
         return (await hre.enquirerPlus.Enquirer.prompt([{
-            ...prompt, given, nonInteractive, message: message.replace("${index}", index)
+            ...prompt, given, nonInteractive, message: message?.replace("${index}", index) || `Element #${index}`
         }])).element;
     }
 }
@@ -150,13 +153,58 @@ function arrayApplier(hre, {message, argumentType}) {
  * @param length The length (optional; it must be a non-negative
  * number for a fixed-length array, or undefined for a prompted
  * length array).
- * @param elements
+ * @param elements A {message, argumentType} element. The message
+ * can have a ${index} tag which will be replaced with the actual
+ * index, and the argumentType or prompt spec for each element.
  * @returns {*} The structure for an argument of array type.
  */
 function arrayArgument(hre, {message, description, name, length, elements}) {
     return {
         name, description, message, argumentType: {
             type: "plus:given-or-array", length, applier: arrayApplier(hre, elements || {})
+        }
+    }
+}
+
+/**
+ * Makes many tuple appliers to be used in a tuple prompt.
+ * @param hre The hardhat runtime environment.
+ * @param elements A list of {name, message, argumentType}
+ * elements, each for a member of the tuple. If the message
+ * is not given but the name is given, ".{name} member" will
+ * be the new message.
+ * @param elements The specs for each element in the tuple.
+ */
+function tupleAppliers(hre, elements) {
+    return (elements || []).map((element) => {
+        let {name, message, argumentType} = element || {};
+        if (!message && name) {
+            message = `.${name} member`
+        }
+        const prompt = preparePrompt(
+            hre, name, argumentType, false, ""
+        );
+        return async function(index, given, nonInteractive) {
+            return (await hre.enquirerPlus.Enquirer.prompt([{
+                ...prompt, given, nonInteractive, message: message || `#${index} member`
+            }])).element;
+        }
+    });
+}
+
+/**
+ * Builds an argument of type Tuple.
+ * @param hre The hardhat runtime environment.
+ * @param message The message for the argument.
+ * @param description The description for the argument.
+ * @param name The name for the argument.
+ * @param elements A [{name, message, argumentType}, ...] element.
+ * @returns {*} The structure for an argument of array type.
+ */
+function tupleArgument(hre, {message, description, name, elements}) {
+    return {
+        name, description, message, argumentType: {
+            type: "plus:given-or-tuple", appliers: tupleAppliers(hre, elements || {})
         }
     }
 }
@@ -181,5 +229,5 @@ function prepareArgumentPrompts(hre, arguments, nonInteractive, givenValues) {
 
 module.exports = {
     prepareArgumentPrompts, registerBlueprintArgumentType, defaultArgumentTypes,
-    arrayArgument
+    arrayArgument, tupleArgument
 }
