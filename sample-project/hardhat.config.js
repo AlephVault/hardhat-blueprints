@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("hardhat-common-tools");
 require("hardhat-enquirer-plus");
 require("..");
 
