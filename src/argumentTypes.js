@@ -100,15 +100,17 @@ for(let index = 1; index <= 32; index++) {
     defaultArgumentTypes[`int${index * 8}`] = {
         prompt: {
             type: "plus:given-or-valid-number-input", convert: "bigint",
-            min: -(1n << BigInt(index * 8 - 1)),
-            max: (1n << BigInt(index * 8 - 1)) - 1n,
+            integerOnly: true, allowHex: true,
+            min: (-(1n << BigInt(index * 8 - 1))).toString(),
+            max: ((1n << BigInt(index * 8 - 1)) - 1n).toString(),
         }
     }
 
     defaultArgumentTypes[`uint${index * 8}`] = {
         prompt: {
             type: "plus:given-or-valid-number-input", convert: "bigint",
-            min: 0n, max: (1n << BigInt(index * 8 )) - 1n,
+            integerOnly: true, allowHex: true,
+            min: "0", max: ((1n << BigInt(index * 8 )) - 1n).toString(),
         }
     }
 }
