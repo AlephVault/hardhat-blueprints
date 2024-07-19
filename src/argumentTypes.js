@@ -231,11 +231,11 @@ function tupleAppliers(hre, elements) {
             message = `.${name} member`
         }
         const prompt = preparePrompt(
-            hre, name, argumentType, false, ""
+            hre, name, message, argumentType, false, ""
         );
         return async function(index, given, nonInteractive) {
             return (await hre.enquirerPlus.Enquirer.prompt([{
-                ...prompt, given, nonInteractive, message: message || `#${index} member`
+                ...prompt, given, nonInteractive, message: message || `#${index} member`, name: "element"
             }])).element;
         }
     });
