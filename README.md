@@ -94,9 +94,9 @@ built on top of prompts. The available argument types are strings:
 - `typeName`: A PascalCase name, valid for contract/interface/library names.
 - `identifier`: A camelCase name, valid for variable or function names.
 - `contract`: A reference to a contract (from compiled artifacts only).
-- `numeric-string`: A positive, base-10, number. Returns a string.
-- `integer-string`: A positive, base-10 or 0x-prefixed base-16, number. Returns a string.
-- `bigint`: A positive, base-10 or 0x-prefixed base-16, number. Returns a bigint.
+- `numeric-string`: A base-10 number. Returns a string.
+- `integer-string`: A base-10, or 0x-prefixed base-16, number. Returns a string.
+- `bigint`: A base-10, or 0x-prefixed base-16, number. Returns a bigint.
 - `boolean`: A boolean value. You'll use `true` or `false` there.
 - `account`: An account index (works both in viem and ethers).
 - `address`: A checksum-valid address (works both in viem and ethers).
@@ -105,6 +105,9 @@ built on top of prompts. The available argument types are strings:
   your project.
 - `token-amount`: A token amount with units, e.g.: "1.5ether", "2 ether", "1gwei", "0.5 gwei"
   or other standard units.
+- `int8` to `int256`: A BigInt input of that size.
+- `uint8` to `uint256`: A BigInt input of that size.
+- `bytes1` to `bytes32`: An hexadecimal input of that (byte-wise) length.
 - Alternatively, an object. The format of this object is the same as the entries used in the
   `prompt` method in the `enquirer` library (but also considering the available types from the
   `hardhat-enquirer-plus` package).
