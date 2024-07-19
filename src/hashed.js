@@ -97,6 +97,8 @@ function registerHashedInput(hre) {
         async render() {}
     }
 
+    hre.enquirerPlus.Enquirer.HashedInput = HashedInput;
+    hre.enquirerPlus.Enquirer.SmartHashedInput = SmartHashedInput;
     hre.enquirerPlus.utils.registerPromptClass("plus:hardhat:given-or-valid-hashed-input", HashedInput);
     hre.enquirerPlus.utils.registerPromptClass("plus:hardhat:given-or-valid-smart-hashed-input", SmartHashedInput);
 }

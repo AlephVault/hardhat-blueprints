@@ -102,6 +102,18 @@ const defaultArgumentTypes = {
             onInvalidGiven: (v) => console.error(`Invalid given string: ${v}`)
         },
         description: "An arbitrary string"
+    },
+    "hashed-text": {
+        prompt: {
+            type: "plus:hardhat:given-or-valid-hashed-input"
+        },
+        description: "A free text to be hashed"
+    },
+    "hashed": {
+        prompt: {
+            type: "plus:hardhat:given-or-valid-smart-hashed-input"
+        },
+        description: "A free text to be hashed, or a valid already-computed hash"
     }
 }
 
