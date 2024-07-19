@@ -93,6 +93,15 @@ const defaultArgumentTypes = {
             onInvalidGiven: (v) => console.error(`Invalid given string: ${v}`)
         },
         description: "An arbitrary string"
+    },
+    "bytes": {
+        prompt: {
+            type: "plus:given-or-valid-input",
+            validate: /^0x([a-fA-F0-9]{2})*$/,
+            makeInvalidInputMessage: (v) => `Invalid string: ${v}`,
+            onInvalidGiven: (v) => console.error(`Invalid given string: ${v}`)
+        },
+        description: "An arbitrary string"
     }
 }
 
