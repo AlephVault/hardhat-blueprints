@@ -179,6 +179,80 @@ console.log(await new hre.enquirerPlus.Enquirer().prompt(prompts));
 
 In the end, the `result` will be a literal object with fields `id`, `value`, `data`, `fromAddress`, `toAddress`.
 
+### Compound types: arrays and tuples
+
+Using arrays and tuples is done through custom, non-registered, prompts. However,
+this package offers some helpers to aid for that purpose. For example, to ask for
+an array of addresses and then a tuple type of (uint8, int16), this would do the
+full job:
+
+```javascript
+const prompts = hre.blueprints.prepareArgumentPrompts([
+	hre.blueprints.arrayArgument({
+		message: "Input an array of addresses",
+		description: "An addresses array",
+		name: "addresses",
+		elements: {
+			argumentType: "smart-address",
+			message: "Element ${index}"
+		} 
+	}),
+	hre.blueprints.tupleArgument({
+		message: "Input a tuple",
+		description: "A tuple",
+		name: "compound",
+		elements: [{
+			name: "foo",
+			argumentType: "uint8"
+		}, {
+			name: "bar",
+			argumentType: "int16"
+		}]
+	}),
+]);
+
+await hre.enquirerPlus.Enquirer.prompt(prompts);
+// It'd return something like: {
+//     addresses: [
+//         '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+//         '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+//     ],
+//     compound: [ 255n, 32767n ]
+// }
+```
+
+In order to provide some given values and force the non-interactive
+mode, this would also work (considering that the non-interactive
+mode is enabled for any type, not just tuples or arrays):
+
+```javascript
+const prompts = hre.blueprints.prepareArgumentPrompts([
+	hre.blueprints.arrayArgument({
+		message: "Input an array of addresses",
+		description: "An addresses array",
+		name: "addresses",
+		elements: {
+			argumentType: "smart-address",
+			message: "Element ${index}"
+		} 
+	}),
+	hre.blueprints.tupleArgument({
+		message: "Input a tuple",
+		description: "A tuple",
+		name: "compound",
+		elements: [{
+			name: "foo",
+			argumentType: "uint8"
+		}, {
+			name: "bar",
+			argumentType: "int16"
+		}]
+	}),
+], true, {"addresses": ["0", "1"], "compound": ["0xff", "0x7fff"]})
+```
+
+Where the third parameter is a given value matching both names.
+
 ## Registering a new blueprint
 
 To create a _new_ blueprint, not listed among the default blueprints described here,
