@@ -108,6 +108,7 @@ built on top of prompts. The available argument types are strings:
 - `int8` to `int256`: A BigInt input of that size.
 - `uint8` to `uint256`: A BigInt input of that size.
 - `bytes1` to `bytes32`: An hexadecimal input of that (byte-wise) length.
+- `string` and `bytes`: An arbitrary string or arbitrary byte-aligned hex string.
 - Alternatively, an object. The format of this object is the same as the entries used in the
   `prompt` method in the `enquirer` library (but also considering the available types from the
   `hardhat-enquirer-plus` package).
@@ -151,7 +152,7 @@ Considering the given types (and new ones) you could manually implement reading 
 by invoking this method, for example:
 
 ```javascript
-const prompts = await hre.blueprints.prepareArgumentPrompts([
+const prompts = hre.blueprints.prepareArgumentPrompts([
     {
         name: "fromAddress",
         description: "The source address",
