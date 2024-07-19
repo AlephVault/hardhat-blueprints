@@ -112,6 +112,13 @@ built on top of prompts. The available argument types are strings:
 - Alternatively, an object. The format of this object is the same as the entries used in the
   `prompt` method in the `enquirer` library (but also considering the available types from the
   `hardhat-enquirer-plus` package).
+- `hashed-text`: A text that will be hashed with keccak256. The result is hashed with keccak256,
+  compatible with Solidity's `keccak256(abi.encodePacked(x))`.
+- `hashed`: Either a text that will be hashed or an already-computed valid hash (as in `bytes32`
+  format). The `given` value may be a string (which will be hashed), a compound object like
+  `{hashed: false, value: string}` (whose `value` will be hashed) or a compound object like
+  `{hashed: true, value: string}` (whose `value` must be a valid `bytes32` value and will not
+  be hashed but returned as-is).
 
 ### Registering a new argument type
 
@@ -392,3 +399,15 @@ You have two options here:
    #    can also be given.
    await hre.blueprints.applyBlueprint("contract", false, {"SCRIPT_NAME": "MyContract", "SOLIDITY_VERSION": "0.8.24"});
    ```
+
+## New enquirer-plus types.
+There are two extra enquirer-plus types registered here:
+
+- Registered as "plus:hardhat:given-or-valid-hashed-input" and used in the "hashed-text" argument type,
+  its class is `hre.enquirerPlus.Enquirer.HashedInput` and takes extra options: `given` (a string) and
+  `nonInteractive`.
+- Registered as "plus:hardhat:given-or-valid-smart-hashed-input" and used in the "hashed" argument type,
+  its class is `hre.enquirerPlus.Enquirer.SmartHashedInput` and takes extra options: `given` (a string,
+  a `{hashed: false, value: string}` or a `{hashed: true, value: string}`) and `nonInteractive`.
+
+They can be safely used in calls to `hre.enquirerPlus.Enquirer.prompt`.
