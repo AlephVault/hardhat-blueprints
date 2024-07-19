@@ -84,6 +84,15 @@ const defaultArgumentTypes = {
             type: "plus:hardhat:given-or-solidity-version-select"
         },
         description: "An X.Y.Z Solidity version in the project"
+    },
+    "string": {
+        prompt: {
+            type: "plus:given-or-valid-input",
+            validate: (v) => true,
+            makeInvalidInputMessage: (v) => `Invalid string: ${v}`,
+            onInvalidGiven: (v) => console.error(`Invalid given string: ${v}`)
+        },
+        description: "An arbitrary string"
     }
 }
 
@@ -94,7 +103,8 @@ for(let index = 1; index <= 32; index++) {
             validate: new RegExp("^0x[a-fA-F0-9]{" + (2 * index) + "}$"),
             makeInvalidInputMessage: (v) => `Invalid bytes${index} value: ${v}`,
             onInvalidGiven: (v) => console.error(`Invalid given bytes${index} value: ${v}`)
-        }
+        },
+        description: `A byte-aligned hexadecimal string of length ${index}`
     }
 
     defaultArgumentTypes[`int${index * 8}`] = {
@@ -103,7 +113,8 @@ for(let index = 1; index <= 32; index++) {
             integerOnly: true, allowHex: true,
             min: (-(1n << BigInt(index * 8 - 1))).toString(),
             max: ((1n << BigInt(index * 8 - 1)) - 1n).toString(),
-        }
+        },
+        description: `An int${index * 8}-ranged number`
     }
 
     defaultArgumentTypes[`uint${index * 8}`] = {
@@ -111,7 +122,8 @@ for(let index = 1; index <= 32; index++) {
             type: "plus:given-or-valid-number-input", convert: "bigint",
             integerOnly: true, allowHex: true,
             min: "0", max: ((1n << BigInt(index * 8 )) - 1n).toString(),
-        }
+        },
+        description: `An uint${index * 8}-ranged number`
     }
 }
 
