@@ -86,6 +86,7 @@ async function applyBlueprint(hre, key, nonInteractive, givenValues) {
             makeInvalidInputMessage: (v) => `Invalid ${scriptType} name: ${v}`,
             onInvalidGiven: (v) => console.error(`Invalid given ${scriptType} name: ${v}`),
             initial: blueprint.defaultName,
+            given: (givenValues || {}).SCRIPT_NAME,
             name: "SCRIPT_NAME"
         }, ...prepareArgumentPrompts(hre, blueprint.arguments, nonInteractive, givenValues)
     ];

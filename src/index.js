@@ -21,7 +21,6 @@ scope_
                     given[key] = value;
                 }
             });
-            given["SCRIPT_NAME"] = template;
             const key = await new hre.enquirerPlus.Enquirer.GivenOrSelect({
                 message: "Which template do you want to apply?",
                 given: template, nonInteractive, choices: hre.blueprints.list,
