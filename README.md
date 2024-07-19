@@ -115,32 +115,22 @@ built on top of prompts. The available argument types are strings:
 
 ### Registering a new argument type
 
-To create a _new_ argument type, not listed among these (and not wishing to use the custom
+To create an AAA-9999 argument type, not listed among these (and not wishing to use the custom
 object as a one-off type), you can call:
 
 ```javascript
-// Registering a new "bytes32-hex" type:
+// Registering a new "plate-code" type:
 hre.blueprints.registerBlueprintArgumentType(
-    "bytes32-hex", {
+    "plate-code", {
         type: "plus:given-or-valid-input",
-        validate: /^0x[a-f0-9]{64}$/,
-        makeInvalidInputMessage: (v) => `Invalid bytes32 string: ${v}`,
-        onInvalidGiven: (v) => console.error(`Invalid given bytes32 string: ${v}`)
-    }, "A 0x-prefixed byte-aligned binary string of 32 bytes"
-);
-
-// Registering a new "bytes-hex" type:
-hre.blueprints.registerBlueprintArgumentType(
-    "bytes-hex", {
-        type: "plus:given-or-valid-input",
-        validate: /^0x([a-f0-9]{2})*$/,
-        makeInvalidInputMessage: (v) => `Invalid bytes string: ${v}`,
-        onInvalidGiven: (v) => console.error(`Invalid given bytes string: ${v}`)
-    }, "A 0x-prefixed byte-aligned binary string"
+        validate: /^[A-Z]{3}-[0-9]{9}$/,
+        makeInvalidInputMessage: (v) => `Invalid plate code: ${v}`,
+        onInvalidGiven: (v) => console.error(`Invalid given plate code: ${v}`)
+    }, "An AAA-9999 code (3 uppercase letters, 4 decimal digits)"
 );
 ```
 
-It will work as expected when you try to define arguments of `"bytes32-hex"` type for
+It will work as expected when you try to define arguments of `"plate-code"` type for
 your new blueprints.
 
 You'll only typically need this when developing your own plugin (on top of this one)
@@ -178,10 +168,10 @@ const prompts = hre.blueprints.prepareArgumentPrompts([
         argumentType: "bigint"
     },
     {
-        name: "data",
-        description: "The data",
-        message: "Enter the data to the method",
-        argumentType: "bytes-hex"
+        name: "plate-code",
+        description: "A plate code",
+        message: "A plate code (it will be hashed and used as data)",
+        argumentType: "plate-code"
     }
 ]);
 console.log(await new hre.enquirerPlus.Enquirer().prompt(prompts));
