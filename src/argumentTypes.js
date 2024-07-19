@@ -87,6 +87,32 @@ const defaultArgumentTypes = {
     }
 }
 
+for(let index = 1; index <= 32; index++) {
+    defaultArgumentTypes[`bytes${index}`] = {
+        prompt: {
+            type: "plus:given-or-valid-input",
+            validate: new RegExp("^0x[a-fA-F0-9]{" + (2 * index) + "}$"),
+            makeInvalidInputMessage: (v) => `Invalid bytes${index} value: ${v}`,
+            onInvalidGiven: (v) => console.error(`Invalid given bytes${index} value: ${v}`)
+        }
+    }
+
+    defaultArgumentTypes[`int${index * 8}`] = {
+        prompt: {
+            type: "plus:given-or-valid-number-input", convert: "bigint",
+            min: -(1n << BigInt(index * 8 - 1)),
+            max: (1n << BigInt(index * 8 - 1)) - 1n,
+        }
+    }
+
+    defaultArgumentTypes[`uint${index * 8}`] = {
+        prompt: {
+            type: "plus:given-or-valid-number-input", convert: "bigint",
+            min: 0n, max: (1n << BigInt(index * 8 )) - 1n,
+        }
+    }
+}
+
 /**
  * Prepares a prompt. It picks a prompt type (or takes it as-is)
  * and adds the other arguments: name, message and given.
