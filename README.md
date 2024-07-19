@@ -248,10 +248,63 @@ const prompts = hre.blueprints.prepareArgumentPrompts([
 			argumentType: "int16"
 		}]
 	}),
-], true, {"addresses": ["0", "1"], "compound": ["0xff", "0x7fff"]})
+], true, {"addresses": ["0", "1"], "compound": ["0xff", "0x7fff"]});
 ```
 
 Where the third parameter is a given value matching both names.
+
+Also, arrays of tuples are supported (and nesting more stuff would be done in an analogous way):
+
+```javascript
+const prompts = hre.blueprints.prepareArgumentPrompts([
+	hre.blueprints.arrayArgument({
+		message: "Input an array of addresses",
+		description: "An addresses array",
+		name: "compounds",
+		elements: hre.blueprints.tupleArgument({
+			message: "Input the ${index}",
+			description: "A tuple",
+			name: "compound",
+			elements: [{
+				name: "foo",
+				argumentType: "uint8"
+			}, {
+				name: "bar",
+				argumentType: "int16"
+			}]
+		})
+	}),
+]);
+
+await hre.enquirerPlus.Enquirer.prompt(prompts);
+```
+
+Which also supports given values and non-interactive mode:
+
+```javascript
+const prompts = hre.blueprints.prepareArgumentPrompts([
+	hre.blueprints.arrayArgument({
+		message: "Input an array of addresses",
+		description: "An addresses array",
+		name: "compounds",
+		elements: hre.blueprints.tupleArgument({
+			message: "Input the ${index}",
+			description: "A tuple",
+			name: "compound",
+			elements: [{
+				name: "foo",
+				argumentType: "uint8"
+			}, {
+				name: "bar",
+				argumentType: "int16"
+			}]
+		})
+	}),
+], true, {"compounds": [["0xff", "0x7fff"], ["0xff", "0x7fff"]]});
+
+await hre.enquirerPlus.Enquirer.prompt(prompts);
+
+```
 
 ## Registering a new blueprint
 
