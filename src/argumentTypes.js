@@ -149,6 +149,27 @@ for(let index = 1; index <= 32; index++) {
 }
 
 /**
+ * Gets the prompt to use from an argument type.
+ * @param hre The hardhat runtime environment.
+ * @param argumentType The argument type.
+ * @returns {{type}|*} The prompt spec.
+ */
+function getPrompt(hre, argumentType) {
+    if (typeof argumentType === "string") {
+        const prompt = hre.blueprints.argTypes[argumentType]?.prompt;
+        if (!prompt) {
+            throw new Error(`Unknown argument type name: ${argumentType}`);
+        }
+        return prompt;
+    } else {
+        if (!argumentType?.type){
+            throw new Error(`Invalid one-off argument type spec: ${argumentType}`);
+        }
+        return argumentType;
+    }
+}
+
+/**
  * Prepares a prompt. It picks a prompt type (or takes it as-is)
  * and adds the other arguments: name, message and given.
  * @param hre The hardhat runtime environment.
@@ -165,7 +186,7 @@ function preparePrompt(hre, name, message, argumentType, nonInteractive, given) 
     // First, the prompt type is either a textual/registered string
     // or a partial prompt object. Then, the other members are added.
     if (!argumentType) throw new Error("Cannot prepare a prompt with empty type");
-    return {name, message, nonInteractive, given, ...(hre.blueprints.argTypes[argumentType]?.prompt || argumentType)};
+    return {name, message, nonInteractive, given, ...getPrompt(hre, argumentType)};
 }
 
 /**
