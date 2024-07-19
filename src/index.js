@@ -2,6 +2,7 @@ const {scope, extendEnvironment} = require("hardhat/config");
 const {registerBlueprintArgumentType, defaultArgumentTypes, prepareArgumentPrompts, tupleArgument, arrayArgument} = require("./argumentTypes");
 const {registerBlueprint, applyBlueprint} = require("./blueprints");
 const path = require("path");
+const {registerHashedInput} = require("./hashed");
 
 const scope_ = scope("blueprint");
 
@@ -48,6 +49,8 @@ scope_
 const __templates = path.resolve(__dirname, "..", "data", "templates");
 
 extendEnvironment((hre) => {
+    registerHashedInput(hre);
+
     hre.blueprints ||= {
         map: {},
         list: [],
