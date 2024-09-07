@@ -42,7 +42,7 @@ function registerBlueprint(hre, key, defaultName, title, filePath, scriptType, a
         throw new Error(`Unknown script type: ${scriptType}`);
     }
     hre.blueprints.list.push({name: key, message: title});
-    hre.blueprints.map[key] = {defaultName, filePath, arguments, scriptType};
+    hre.blueprints.map[key] = {title, defaultName, filePath, arguments, scriptType};
 }
 
 /**

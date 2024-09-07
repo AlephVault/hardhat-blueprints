@@ -45,6 +45,22 @@ scope_
         });
     });
 
+scope_
+    .task("show", "Shows only one of the available blueprints")
+    .addOptionalPositionalParam("blueprintName", "A registered blueprint's name")
+    .setAction(({blueprintName}, hre, runSuper) => {
+        if (!blueprintName || !hre.blueprints.map[blueprintName]) {
+            console.error("The blueprint name must be specified among: " + hre.blueprints.list.map(({name}) => name).join(", "));
+            return;
+        }
+
+        console.log("This blueprint is registered and has the following details:");
+        console.log(`- ${blueprintName}: ${hre.blueprints.map[blueprintName].title}\n  - Arguments:`)
+        hre.blueprints.map[blueprintName].arguments.forEach((argument) => {
+            console.log(`    - ${argument.name}: ${argument.description || 'No description'} (${(hre.blueprints.argTypes[argument.argumentType] || {}).description || "unknown"})`);
+        })
+    });
+
 const __templates = path.resolve(__dirname, "..", "data", "templates");
 
 extendEnvironment((hre) => {
