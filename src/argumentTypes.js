@@ -28,7 +28,7 @@ const defaultArgumentTypes = {
             type: "plus:given-or-valid-number-input",
             convert: "string"
         },
-        description: "A positive number"
+        description: "A number"
     },
     "integer-string": {
         prompt: {
@@ -36,7 +36,7 @@ const defaultArgumentTypes = {
             integerOnly: true, allowHex: true,
             convert: "string"
         },
-        description: "A positive integer"
+        description: "A integer"
     },
     "bigint": {
         prompt: {
@@ -44,7 +44,7 @@ const defaultArgumentTypes = {
             integerOnly: true, allowHex: true,
             convert: "bigint"
         },
-        description: "A positive integer"
+        description: "A integer"
     },
     "boolean": {
         prompt: {
