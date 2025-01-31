@@ -5,7 +5,7 @@ A hardhat plugin offering the possibility to generate new contract files (.sol) 
 Run this command to install it from NPM:
 
 ```shell
-npm install --save-dev hardhat-common-tools@^1.3.0 hardhat-enquirer-plus@^1.4.0 hardhat-blueprints@^1.2.3
+npm install --save-dev hardhat-common-tools@^1.3.0 hardhat-enquirer-plus@^1.4.0 hardhat-blueprints@^1.3.0
 ```
 
 # Usage
@@ -310,8 +310,67 @@ const prompts = hre.blueprints.prepareArgumentPrompts([
 ], true, {"compounds": [["0xff", "0x7fff"], ["0xff", "0x7fff"]]});
 
 await hre.enquirerPlus.Enquirer.prompt(prompts);
-
 ```
+
+### One-off arguments
+
+There are cases where you'd want to use a custom argument type, and only on a specific case.
+This has the following considerations:
+
+1. You'll use few times your type, and it's kind of private to your current package (and
+   don't want other packages to have access to it).
+2. You want to make use of the type few times or in a controlled way.
+
+In that case, you don't invoke the `registerBlueprintArgumentType` utility. Instead, you'll
+just make use of the type declaration directly.
+
+Sticking to the plate code example, you could use the prompt structure directly instead of
+declaring the type. Example:
+
+```javascript
+const prompts = hre.blueprints.prepareArgumentPrompts([
+    {
+        name: "fromAddress",
+        description: "The source address",
+        message: "Enter the source address",
+        argumentType: "smart-address"
+    },
+    {
+        name: "toAddress",
+        description: "The destination address",
+        message: "Enter the destination address",
+        argumentType: "smart-address"
+    },
+    {
+        name: "id",
+        description: "The token id",
+        message: "Enter the ID of the token",
+        argumentType: "bigint"
+    },
+    {
+        name: "value",
+        description: "The token id",
+        message: "Enter the ID of the token",
+        argumentType: "bigint"
+    },
+    {
+        name: "plate-code",
+        description: "A plate code",
+        message: "A plate code (it will be hashed and used as data)",
+        argumentType: {
+            type: "plus:given-or-valid-input",
+            validate: /^[A-Z]{3}-[0-9]{9}$/,
+            makeInvalidInputMessage: (v) => `Invalid plate code: ${v}`,
+            onInvalidGiven: (v) => console.error(`Invalid given plate code: ${v}`)
+        }
+    }
+]);
+console.log(await new hre.enquirerPlus.Enquirer().prompt(prompts));
+```
+
+Notice how the fifth argument (plate-code) doesn't have a string in its `argumentType`
+but, instead, an object defining the whole prompt structure (as it is typical for the
+Enquirer's `prompt` call).
 
 ## Registering a new blueprint
 
@@ -379,8 +438,21 @@ Notice how both `SCRIPT_NAME` and the oter 3 arguments are defined. They'll be p
 accounted for when trying the command:
 
 ```shell
-npx hardhat blueprint apply erc20 ... # the arguments here
+npx hardhat blueprint apply erc-20 ... # the arguments here
 ```
+
+### Custom output filename
+
+You can specify a custom file name as an optional argument to `apply`. Following the previous
+example, the call would become:
+
+```shell
+npx hardhat blueprint apply erc-20 ... --output-file MyToken # the arguments here
+```
+
+Doing this, the generated filename will be `MyToken.sol` instead of whatever is given as the internal
+contract name in this example. This also means that the extension should not be provided / will be
+ignored (or treated as part of the file name, leading perhaps to having `FooContract.sol.sol` instead).
 
 ## Manually executing / applying a blueprint
 You have two options here:
@@ -389,18 +461,40 @@ You have two options here:
    official docs), properly specifying the arguments.
 2. Invoke `hre.blueprints.applyBlueprint`. For example, to apply the `contract` blueprint:
 
-   ```shell
-   # 1. nonInteractive is being set to false, thus allowing prompts
-   #    if something were to be invalid. Pass it as true in your
-   #    calls if you want to ensure that no interactions must occur
-   #    via prompting (raising an error instead).
-   # 2. Provided 0.8.24 is a valid solidity version in your project.
-   #    As SCRIPT_NAME is given, also any other expected argument
-   #    can also be given.
+   ```javascript
+   // 1. nonInteractive is being set to false, thus allowing prompts
+   //    if something were to be invalid. Pass it as true in your
+   //    calls if you want to ensure that no interactions must occur
+   //    via prompting (raising an error instead).
+   // 2. Provided 0.8.24 is a valid solidity version in your project.
+   //    As SCRIPT_NAME is given, also any other expected argument
+   //    can also be given.
    await hre.blueprints.applyBlueprint("contract", false, {"SCRIPT_NAME": "MyContract", "SOLIDITY_VERSION": "0.8.24"});
    ```
 
-## New enquirer-plus types.
+### Custom output filename
+
+You can specify a custom file name as the fourth argument to `applyBlueprint`. Following the previous
+example, the call would become:
+
+```javascript
+// 1. nonInteractive is being set to false, thus allowing prompts
+//    if something were to be invalid. Pass it as true in your
+//    calls if you want to ensure that no interactions must occur
+//    via prompting (raising an error instead).
+// 2. Provided 0.8.24 is a valid solidity version in your project.
+//    As SCRIPT_NAME is given, also any other expected argument
+//    can also be given.
+await hre.blueprints.applyBlueprint(
+    "contract", false, {"SCRIPT_NAME": "MyContract", "SOLIDITY_VERSION": "0.8.24"}, "FooContract"
+);
+```
+
+Doing this, the generated filename will be `FooContract.sol` instead of `MyContract.sol` in this example.
+This also means that the extension should not be provided / will be ignored (or treated as part of the
+file name, leading perhaps to having `FooContract.sol.sol` instead).
+
+## New enquirer-plus types
 There are two extra enquirer-plus types registered here:
 
 - Registered as "plus:hardhat:given-or-valid-hashed-input" and used in the "hashed-text" argument type,
