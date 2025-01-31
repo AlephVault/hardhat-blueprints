@@ -69,10 +69,13 @@ function applyTemplate(filePath, replacements, toFilePath) {
  * @param key The blueprint key.
  * @param nonInteractive Flag to tell whether the interaction must
  * not become interactive (by raising an error) or can be.
+ * @param outputFile The target file name, without extension. It will
+ * be treated as not having any extension, which means that the proper
+ * one will be added by the end.
  * @param givenValues A mapping of given values to use.
  * @returns {Promise<string>} The result filepath.
  */
-async function applyBlueprint(hre, key, nonInteractive, givenValues) {
+async function applyBlueprint(hre, key, nonInteractive, givenValues, outputFile) {
     const blueprint = hre.blueprints.map[key];
     if (!blueprint) throw new Error(`Unknown blueprint: ${key}`);
     const templateType = templateTypes[blueprint.scriptType];
@@ -92,7 +95,7 @@ async function applyBlueprint(hre, key, nonInteractive, givenValues) {
         }, ...prepareArgumentPrompts(hre, blueprint.arguments, nonInteractive, givenValues)
     ];
     const answers = await new hre.enquirerPlus.Enquirer().prompt(prompts);
-    const toFilePath = path.resolve(targetDirectory, answers.SCRIPT_NAME + "." + extension);
+    const toFilePath = path.resolve(targetDirectory, (outputFile || answers.SCRIPT_NAME) + "." + extension);
     applyTemplate(blueprint.filePath, answers, toFilePath);
     return toFilePath;
 }

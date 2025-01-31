@@ -10,8 +10,9 @@ scope_
     .task("apply", "Picks and applies a template")
     .addOptionalPositionalParam("template", "The template key to apply")
     .addFlag("nonInteractive", "Ensure this execution is not interactive (raising an error when it becomes interactive)")
+    .addOptionalParam("outputFile", "Chooses an explicit output file name (without extension)")
     .addOptionalVariadicPositionalParam("params", "Many (variadic) arguments like ARG=value (quote the pair properly) that will be used in the template")
-    .setAction(async ({template, nonInteractive, params}, hre, runSuper) => {
+    .setAction(async ({template, nonInteractive, outputFile, params}, hre, runSuper) => {
         try {
             const given = {};
             (params || []).forEach((param) => {
@@ -26,7 +27,7 @@ scope_
                 given: template, nonInteractive, choices: hre.blueprints.list,
                 onInvalidGiven: (v) => console.error(`Unknown template: ${template}`)
             }).run();
-            const filename = await hre.blueprints.applyBlueprint(key, nonInteractive, given);
+            const filename = await hre.blueprints.applyBlueprint(key, nonInteractive, given, outputFile);
             console.log(`File ${filename} successfully generated.`);
         } catch (e) {
             console.error(e);
@@ -79,8 +80,8 @@ extendEnvironment((hre) => {
         prepareArgumentPrompts: (arguments, nonInteractive, givenValues) => prepareArgumentPrompts(
             hre, arguments, nonInteractive, givenValues
         ),
-        applyBlueprint: (key, nonInteractive, givenValues) => applyBlueprint(
-            hre, key, nonInteractive, givenValues
+        applyBlueprint: (key, nonInteractive, givenValues, outputFile) => applyBlueprint(
+            hre, key, nonInteractive, givenValues, outputFile
         ),
         tupleArgument: ({message, description, name, elements}) => tupleArgument(
             hre, {message, description, name, elements}
