@@ -180,13 +180,16 @@ function getPrompt(hre, argumentType) {
  * not become interactive (by raising an error) or can be.
  * @param argumentType The argument type. Either one of the registered
  * argument types or a custom prompt.
+ * @param initial The initial value.
  * @returns {*} The prompt entry.
  */
-function preparePrompt(hre, name, message, argumentType, nonInteractive, given) {
+function preparePrompt(hre, name, message, argumentType, initial, nonInteractive, given) {
     // First, the prompt type is either a textual/registered string
     // or a partial prompt object. Then, the other members are added.
     if (!argumentType) throw new Error("Cannot prepare a prompt with empty type");
-    return {name, message, nonInteractive, given, ...getPrompt(hre, argumentType)};
+    let prompt = {name, message, nonInteractive, given, ...getPrompt(hre, argumentType)};
+    if (typeof initial !== "undefined") prompt.initial = initial;
+    return prompt;
 }
 
 /**
@@ -210,14 +213,15 @@ function registerBlueprintArgumentType(hre, argumentType, promptSpec, descriptio
  * @param message The message (which can contain an ${index} chunk
  * to insert the index in the message). It is optional.
  * @param argumentType The argument type for the element.
+ * @param initial The initial value for each element.
  * @returns {function(*, *, *): Promise<"anyfunc"|"externref">} The applier.
  */
-function arrayApplier(hre, {message, argumentType}) {
+function arrayApplier(hre, {message, argumentType, initial}) {
     if (!argumentType) {
         throw new Error("The argumentType must be set when creating an array argument");
     }
     const prompt = preparePrompt(
-        hre, "element", message, argumentType, false, ""
+        hre, "element", message, argumentType, initial, false, ""
     );
     return async function(index, given, nonInteractive) {
         return (await hre.enquirerPlus.Enquirer.prompt([{
@@ -251,20 +255,20 @@ function arrayArgument(hre, {message, description, name, length, elements}) {
 /**
  * Makes many tuple appliers to be used in a tuple prompt.
  * @param hre The hardhat runtime environment.
- * @param elements A list of {name, message, argumentType}
- * elements, each for a member of the tuple. If the message
- * is not given but the name is given, ".{name} member" will
- * be the new message.
+ * @param elements A list of {name, message, argumentType, initial}
+ * elements, each for a member of the tuple. If the message is not
+ * given but the name is given, ".{name} member" will be the new
+ * message. It's optional to define an initial value.
  * @param elements The specs for each element in the tuple.
  */
 function tupleAppliers(hre, elements) {
     return (elements || []).map((element) => {
-        let {name, message, argumentType} = element || {};
+        let {name, message, argumentType, initial} = element || {};
         if (!message && name) {
             message = `.${name} member`
         }
         const prompt = preparePrompt(
-            hre, name, message, argumentType, false, ""
+            hre, name, message, argumentType, initial, false, ""
         );
         return async function(index, given, nonInteractive) {
             return (await hre.enquirerPlus.Enquirer.prompt([{
@@ -293,7 +297,8 @@ function tupleArgument(hre, {message, description, name, elements}) {
 
 /**
  * Prepares all the given arguments into enquirer's prompts.
- * Each element must be {name, message, promptType}.
+ * Each element must be {name, message, promptType, initial}.
+ * It's optional to define an initial value.
  * @param hre The hardhat runtime environment.
  * @param arguments The list of argument entries.
  * @param nonInteractive Flag to tell whether the interaction must
@@ -304,8 +309,8 @@ function tupleArgument(hre, {message, description, name, elements}) {
  */
 function prepareArgumentPrompts(hre, arguments, nonInteractive, givenValues) {
     givenValues = givenValues || {};
-    return arguments.map(({name, message, argumentType}) => preparePrompt(
-        hre, name, message, argumentType, nonInteractive, givenValues[name]
+    return arguments.map(({name, message, argumentType, initial}) => preparePrompt(
+        hre, name, message, argumentType, initial, nonInteractive, givenValues[name]
     ));
 }
 
