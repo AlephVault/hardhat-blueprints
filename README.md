@@ -170,8 +170,8 @@ const prompts = hre.blueprints.prepareArgumentPrompts([
     },
     {
         name: "value",
-        description: "The token id",
-        message: "Enter the ID of the token",
+        description: "The token amount",
+        message: "Enter the amount of the token",
         argumentType: "bigint"
     },
     {
@@ -185,6 +185,24 @@ console.log(await new hre.enquirerPlus.Enquirer().prompt(prompts));
 ```
 
 In the end, the `result` will be a literal object with fields `id`, `value`, `data`, `fromAddress`, `toAddress`.
+
+The elements accept an `initial` value, which are pre-rendered values that can
+serve as a placeholder for the field (e.g. 1e18 for a token):
+
+```javascript
+const prompts = hre.blueprints.prepareArgumentPrompts([
+    // ...
+    {
+        name: "value",
+        description: "The token amount",
+        message: "Enter the amount of the token",
+        argumentType: "bigint",
+        initial: BigInt("1000000000000000000")
+    },
+    // ...
+]);
+console.log(await new hre.enquirerPlus.Enquirer().prompt(prompts));
+```
 
 ### Compound types: arrays and tuples
 
@@ -312,6 +330,9 @@ const prompts = hre.blueprints.prepareArgumentPrompts([
 await hre.enquirerPlus.Enquirer.prompt(prompts);
 ```
 
+**Notes on initial values**: Initial values in subcomponents for both tuple and array values
+are allowed.
+
 ### One-off arguments
 
 There are cases where you'd want to use a custom argument type, and only on a specific case.
@@ -349,8 +370,8 @@ const prompts = hre.blueprints.prepareArgumentPrompts([
     },
     {
         name: "value",
-        description: "The token id",
-        message: "Enter the ID of the token",
+        description: "The token amount",
+        message: "Enter the amount of the token",
         argumentType: "bigint"
     },
     {
@@ -419,6 +440,8 @@ hre.blueprints.registerBlueprint(
     }]
 );
 ```
+
+The same principles apply (e.g. with setting `initial` values).
 
 __PLEASE NOTE:__ You must not define the `SCRIPT_NAME` argument. It is already defined.
 
