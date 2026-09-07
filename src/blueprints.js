@@ -1,7 +1,8 @@
 // The list of blueprints. Each one has {defaultName, filePath, arguments}.
-const {prepareArgumentPrompts} = require("./argumentTypes");
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+
+import { prepareArgumentPrompts } from "./argumentTypes.js";
 
 // The supported template types.
 const templateTypes = {
@@ -26,7 +27,7 @@ const templateTypes = {
  * @param filePath The path to the template file.
  * @param scriptType The script type. Only "contract" or "ignition-module"
  * are supported.
- * @param arguments The list of arguments. Each one must be an entry like
+ * @param blueprintArguments The list of arguments. Each one must be an entry like
  * this: {name, message, promptType} where name and message will directly
  * be forwarded to `enquirer` prompts, while the promptType will be either
  * a registered preset (e.g. string, number, contract, boolean, address or
@@ -34,7 +35,7 @@ const templateTypes = {
  * entry (which completely would match an entry in a call to enquirer's
  * prompt() method).
  */
-function registerBlueprint(hre, key, defaultName, title, filePath, scriptType, arguments) {
+export function registerBlueprint(hre, key, defaultName, title, filePath, scriptType, blueprintArguments) {
     if (hre.blueprints.map[key]) {
         throw new Error(`Blueprint key already registered: ${key}`);
     }
@@ -42,7 +43,7 @@ function registerBlueprint(hre, key, defaultName, title, filePath, scriptType, a
         throw new Error(`Unknown script type: ${scriptType}`);
     }
     hre.blueprints.list.push({name: key, message: title});
-    hre.blueprints.map[key] = {title, defaultName, filePath, arguments, scriptType};
+    hre.blueprints.map[key] = {title, defaultName, filePath, arguments: blueprintArguments, scriptType};
 }
 
 /**
@@ -75,13 +76,12 @@ function applyTemplate(filePath, replacements, toFilePath) {
  * @param givenValues A mapping of given values to use.
  * @returns {Promise<string>} The result filepath.
  */
-async function applyBlueprint(hre, key, nonInteractive, givenValues, outputFile) {
+export async function applyBlueprint(hre, key, nonInteractive, givenValues, outputFile) {
     const blueprint = hre.blueprints.map[key];
     if (!blueprint) throw new Error(`Unknown blueprint: ${key}`);
     const templateType = templateTypes[blueprint.scriptType];
     const {extension, target, description: scriptType} = templateType;
-    const targetDirectory = typeof target === "string" ?
-        hre.config.paths[target] : path.resolve(hre.config.paths.root, ...target);
+    const targetDirectory = getTargetDirectory(hre, target);
     const prompts = [
         {
             type: "plus:given-or-valid-input",
@@ -100,6 +100,14 @@ async function applyBlueprint(hre, key, nonInteractive, givenValues, outputFile)
     return toFilePath;
 }
 
-module.exports = {
-    registerBlueprint, applyBlueprint
+function getTargetDirectory(hre, target) {
+    if (Array.isArray(target)) {
+        return path.resolve(hre.config.paths.root, ...target);
+    }
+
+    if (target === "sources" && Array.isArray(hre.config.paths.sources?.solidity)) {
+        return hre.config.paths.sources.solidity[0];
+    }
+
+    return hre.config.paths[target];
 }

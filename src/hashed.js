@@ -1,4 +1,4 @@
-function registerHashedInput(hre) {
+export function registerHashedInput(hre) {
     /**
      * This input takes an arbitrary text from the user and hashes it.
      */
@@ -102,5 +102,3 @@ function registerHashedInput(hre) {
     hre.enquirerPlus.utils.registerPromptClass("plus:hardhat:given-or-valid-hashed-input", HashedInput);
     hre.enquirerPlus.utils.registerPromptClass("plus:hardhat:given-or-valid-smart-hashed-input", SmartHashedInput);
 }
-
-module.exports = {registerHashedInput};

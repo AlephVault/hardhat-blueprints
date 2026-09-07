@@ -1,5 +1,4 @@
-const GivenOrSelect = require("enquirer-plus/src/given-or-select");
-const {getHRE} = require("hardhat-enquirer-plus/src/common/hre");
+import GivenOrSelect from "enquirer-plus/src/given-or-select.js";
 
 /**
  * Gets the {initial, choices} settings of solidity versions
@@ -8,15 +7,9 @@ const {getHRE} = require("hardhat-enquirer-plus/src/common/hre");
  * @returns {Promise<{initial: string, choices: {name: *, message: *}[]}>}
  * The settings (async function).
  */
-async function getSolidityVersionSettings(hre) {
-    let compilerVersions = [];
-    try {
-        compilerVersions = hre.config.solidity.compilers.map((entry) => {
-            return (entry.version || "").trim();
-        }).filter((version) => {
-            return /\d+\.\d+\.\d+/.test(version);
-        });
-    } catch(e) {
+function getSolidityVersionSettings(hre) {
+    let compilerVersions = getCompilerVersions(hre);
+    if (compilerVersions.length === 0) {
         throw new Error(
             "Your Hardhat config seems to not have the appropriate format " +
             "for the solidity compilers. Please ensure that section is properly " +
@@ -46,12 +39,30 @@ async function getSolidityVersionSettings(hre) {
     return {initial, choices};
 }
 
+function getCompilerVersions(hre) {
+    const solidity = hre?.config?.solidity;
+
+    if (Array.isArray(solidity?.compilers)) {
+        return filterVersions(solidity.compilers.map((entry) => entry.version));
+    }
+
+    const profiles = Object.values(solidity?.profiles || {});
+    return filterVersions(
+        profiles.flatMap((profile) => (profile.compilers || []).map((entry) => entry.version))
+    );
+}
+
+function filterVersions(versions) {
+    return [...new Set(
+        versions.map((version) => (version || "").trim()).filter((version) => /\d+\.\d+\.\d+/.test(version))
+    )];
+}
+
 /**
  * A Select for the solidity version prompt.
  */
 class GivenOrSolidityVersionSelect extends GivenOrSelect {
     constructor({hre, ...options}) {
-        hre = hre || getHRE();
         if (!hre) {
             throw new Error(
                 "This prompt type can only be used when hardhat-enquirer-plus is installed " +
@@ -62,4 +73,4 @@ class GivenOrSolidityVersionSelect extends GivenOrSelect {
     }
 }
 
-module.exports = GivenOrSolidityVersionSelect;
+export default GivenOrSolidityVersionSelect;

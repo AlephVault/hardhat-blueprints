@@ -1,6 +1,6 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-export default buildModule("#SCRIPT_NAME#", (m) => {
+export default buildModule("MyModule", (m) => {
   // You can pass parameters (e.g. "foo") to this module and attend
   // or capture them by using line like this one:
   //
@@ -20,7 +20,7 @@ export default buildModule("#SCRIPT_NAME#", (m) => {
   // will be passed directly to the constructor.
 
   const contract = m.contract(
-    "#CONTRACT_NAME#", []
+    "MyContract", []
   );
 
   // In this case, the result is a single object having a contract: key

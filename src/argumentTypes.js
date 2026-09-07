@@ -1,4 +1,4 @@
-const defaultArgumentTypes = {
+export const defaultArgumentTypes = {
     "typeName": {
         prompt: {
             type: "plus:given-or-valid-input",
@@ -200,7 +200,7 @@ function preparePrompt(hre, name, message, argumentType, initial, nonInteractive
  * format that would be provided for enquirer's prompt() method).
  * @param description A description of how the type works.
  */
-function registerBlueprintArgumentType(hre, argumentType, promptSpec, description) {
+export function registerBlueprintArgumentType(hre, argumentType, promptSpec, description) {
     if (hre.blueprints.argTypes[argumentType] !== undefined) {
         throw new Error(`A prompt type is already registered with this name: ${argumentType}`);
     }
@@ -244,7 +244,7 @@ function arrayApplier(hre, {message, argumentType, initial}) {
  * index, and the argumentType or prompt spec for each element.
  * @returns {*} The structure for an argument of array type.
  */
-function arrayArgument(hre, {message, description, name, length, elements}) {
+export function arrayArgument(hre, {message, description, name, length, elements}) {
     return {
         name, description, message, argumentType: {
             type: "plus:given-or-array", length, applier: arrayApplier(hre, elements || {})
@@ -287,7 +287,7 @@ function tupleAppliers(hre, elements) {
  * @param elements A [{name, message, argumentType}, ...] element.
  * @returns {*} The structure for an argument of array type.
  */
-function tupleArgument(hre, {message, description, name, elements}) {
+export function tupleArgument(hre, {message, description, name, elements}) {
     return {
         name, description, message, argumentType: {
             type: "plus:given-or-tuple", appliers: tupleAppliers(hre, elements || {})
@@ -300,21 +300,16 @@ function tupleArgument(hre, {message, description, name, elements}) {
  * Each element must be {name, message, promptType, initial}.
  * It's optional to define an initial value.
  * @param hre The hardhat runtime environment.
- * @param arguments The list of argument entries.
+ * @param blueprintArguments The list of argument entries.
  * @param nonInteractive Flag to tell whether the interaction must
  * not become interactive (by raising an error) or can be.
  * @param givenValues An optional set of given values (only one
  * per argument name).
  * @returns {Array} The native prompts.
  */
-function prepareArgumentPrompts(hre, arguments, nonInteractive, givenValues) {
+export function prepareArgumentPrompts(hre, blueprintArguments, nonInteractive, givenValues) {
     givenValues = givenValues || {};
-    return arguments.map(({name, message, argumentType, initial}) => preparePrompt(
+    return blueprintArguments.map(({name, message, argumentType, initial}) => preparePrompt(
         hre, name, message, argumentType, initial, nonInteractive, givenValues[name]
     ));
-}
-
-module.exports = {
-    prepareArgumentPrompts, registerBlueprintArgumentType, defaultArgumentTypes,
-    arrayArgument, tupleArgument
 }

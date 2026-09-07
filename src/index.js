@@ -1,84 +1,38 @@
-const {scope, extendEnvironment} = require("hardhat/config");
-const {registerBlueprintArgumentType, defaultArgumentTypes, prepareArgumentPrompts, tupleArgument, arrayArgument} = require("./argumentTypes");
-const {registerBlueprint, applyBlueprint} = require("./blueprints");
-const path = require("path");
-const {registerHashedInput} = require("./hashed");
+import { emptyTask, task } from "hardhat/config";
+import { definePlugin } from "hardhat/plugins";
+import { ArgumentType } from "hardhat/types/arguments";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const scope_ = scope("blueprint");
+import hardhatCommonToolsPlugin from "hardhat-common-tools";
+import hardhatEnquirerPlusPlugin from "hardhat-enquirer-plus";
 
-scope_
-    .task("apply", "Picks and applies a template")
-    .addOptionalPositionalParam("template", "The template key to apply")
-    .addFlag("nonInteractive", "Ensure this execution is not interactive (raising an error when it becomes interactive)")
-    .addOptionalParam("outputFile", "Chooses an explicit output file name (without extension)")
-    .addOptionalVariadicPositionalParam("params", "Many (variadic) arguments like ARG=value (quote the pair properly) that will be used in the template")
-    .setAction(async ({template, nonInteractive, outputFile, params}, hre, runSuper) => {
-        try {
-            const given = {};
-            (params || []).forEach((param) => {
-                const [key, ...parts] = param.split("=");
-                const value = parts.join("=");
-                if (value !== "") {
-                    given[key] = value;
-                }
-            });
-            const key = await new hre.enquirerPlus.Enquirer.GivenOrSelect({
-                message: "Which template do you want to apply?",
-                given: template, nonInteractive, choices: hre.blueprints.list,
-                onInvalidGiven: (v) => console.error(`Unknown template: ${template}`)
-            }).run();
-            const filename = await hre.blueprints.applyBlueprint(key, nonInteractive, given, outputFile);
-            console.log(`File ${filename} successfully generated.`);
-        } catch (e) {
-            console.error(e);
-        }
-    });
+import { registerBlueprintArgumentType, defaultArgumentTypes, prepareArgumentPrompts, tupleArgument, arrayArgument } from "./argumentTypes.js";
+import { registerBlueprint, applyBlueprint } from "./blueprints.js";
+import { registerHashedInput } from "./hashed.js";
 
-scope_
-    .task("list", "Lists all the available blueprints")
-    .setAction(({}, hre, runSuper) => {
-        console.log("These are the available blueprints you can use in the `apply` command:");
-        hre.blueprints.list.forEach(({name, message}) => {
-            console.log(`- ${name}: ${message}\n  - Arguments:`)
-            hre.blueprints.map[name].arguments.forEach((argument) => {
-                console.log(`    - ${argument.name}: ${argument.description || 'No description'} (${(hre.blueprints.argTypes[argument.argumentType] || {}).description || "unknown"})`);
-            })
-        });
-    });
-
-scope_
-    .task("show", "Shows only one of the available blueprints")
-    .addOptionalPositionalParam("blueprintName", "A registered blueprint's name")
-    .setAction(({blueprintName}, hre, runSuper) => {
-        if (!blueprintName || !hre.blueprints.map[blueprintName]) {
-            console.error("The blueprint name must be specified among: " + hre.blueprints.list.map(({name}) => name).join(", "));
-            return;
-        }
-
-        console.log("This blueprint is registered and has the following details:");
-        console.log(`- ${blueprintName}: ${hre.blueprints.map[blueprintName].title}\n  - Arguments:`)
-        hre.blueprints.map[blueprintName].arguments.forEach((argument) => {
-            console.log(`    - ${argument.name}: ${argument.description || 'No description'} (${(hre.blueprints.argTypes[argument.argumentType] || {}).description || "unknown"})`);
-        })
-    });
-
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const __templates = path.resolve(__dirname, "..", "data", "templates");
 
-extendEnvironment((hre) => {
+export function installBlueprints(hre) {
+    if (hre.blueprints?.__hardhatBlueprintsInstalled) {
+        return;
+    }
+
     registerHashedInput(hre);
 
     hre.blueprints ||= {
         map: {},
         list: [],
         argTypes: {...defaultArgumentTypes},
-        registerBlueprint: (key, defaultName, title, filePath, scriptType, arguments) => registerBlueprint(
-            hre, key, defaultName, title, filePath, scriptType, arguments
+        registerBlueprint: (key, defaultName, title, filePath, scriptType, blueprintArguments) => registerBlueprint(
+            hre, key, defaultName, title, filePath, scriptType, blueprintArguments
         ),
         registerBlueprintArgumentType: (argumentType, promptSpec, description) => registerBlueprintArgumentType(
             hre, argumentType, promptSpec, description
         ),
-        prepareArgumentPrompts: (arguments, nonInteractive, givenValues) => prepareArgumentPrompts(
-            hre, arguments, nonInteractive, givenValues
+        prepareArgumentPrompts: (blueprintArguments, nonInteractive, givenValues) => prepareArgumentPrompts(
+            hre, blueprintArguments, nonInteractive, givenValues
         ),
         applyBlueprint: (key, nonInteractive, givenValues, outputFile) => applyBlueprint(
             hre, key, nonInteractive, givenValues, outputFile
@@ -159,6 +113,62 @@ extendEnvironment((hre) => {
             }
         ]
     );
+    hre.blueprints.__hardhatBlueprintsInstalled = true;
+}
+
+const hardhatBlueprintsPlugin = definePlugin({
+    id: "hardhat-blueprints",
+    npmPackage: "hardhat-blueprints",
+    dependencies: () => [
+        Promise.resolve({default: hardhatCommonToolsPlugin}),
+        Promise.resolve({default: hardhatEnquirerPlusPlugin}),
+    ],
+    hookHandlers: {
+        hre: async () => ({
+            default: async () => ({
+                created: async (_context, hre) => {
+                    installBlueprints(hre);
+                },
+            }),
+        }),
+    },
+    tasks: [
+        emptyTask(["blueprint"], "Manages contract blueprints").build(),
+        task(["blueprint", "apply"], "Picks and applies a template")
+            .addPositionalArgument({
+                name: "template",
+                description: "The template key to apply",
+                type: ArgumentType.STRING_WITHOUT_DEFAULT,
+            })
+            .addFlag({
+                name: "nonInteractive",
+                description: "Ensure this execution is not interactive (raising an error when it becomes interactive)",
+            })
+            .addOption({
+                name: "outputFile",
+                description: "Chooses an explicit output file name (without extension)",
+                type: ArgumentType.STRING_WITHOUT_DEFAULT,
+                defaultValue: undefined,
+            })
+            .addVariadicArgument({
+                name: "params",
+                description: "Many arguments like ARG=value that will be used in the template",
+                defaultValue: [],
+            })
+            .setAction(() => import("./tasks/apply.js"))
+            .build(),
+        task(["blueprint", "list"], "Lists all the available blueprints")
+            .setAction(() => import("./tasks/list.js"))
+            .build(),
+        task(["blueprint", "show"], "Shows only one of the available blueprints")
+            .addPositionalArgument({
+                name: "blueprintName",
+                description: "A registered blueprint's name",
+                type: ArgumentType.STRING_WITHOUT_DEFAULT,
+            })
+            .setAction(() => import("./tasks/show.js"))
+            .build(),
+    ],
 });
 
-module.exports = {}
+export default hardhatBlueprintsPlugin;
